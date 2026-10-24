@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
@@ -9,6 +9,8 @@ import Discover from './pages/Discover';
 import { LanguageProvider, useLanguage } from './i18n';
 import { SearchModal } from './components/SearchModal';
 import Footer from './components/Footer';
+import { getStoredCart, type CartItem } from './data/cart';
+import { getActiveUser } from './data/auth';
 
 const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount: number }) => {
   const location = useLocation();
@@ -37,7 +39,7 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
         
         {/* Mobile Title */}
         <div className="md:hidden font-['Cormorant_Garamond'] font-semibold tracking-widest text-sm uppercase">
-          {isProductPage ? 'Fiche Produit' : ''}
+          {isProductPage ? 'Garment Detail' : ''}
         </div>
 
         {/* Desktop Navigation */}
@@ -99,11 +101,11 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
               </span>
             )}
           </div>
-          <span className="text-[10px] font-medium tracking-wider uppercase">Panier</span>
+          <span className="text-[10px] font-medium tracking-wider uppercase">{t('nav_cart')}</span>
         </Link>
         <Link to="/account" className={`flex flex-col items-center gap-1 ${location.pathname === '/account' ? 'text-[#1a1a1a]' : 'text-gray-400'}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span className="text-[10px] font-medium tracking-wider uppercase">Compte</span>
+          <span className="text-[10px] font-medium tracking-wider uppercase">{t('nav_account')}</span>
         </Link>
       </nav>
     </div>
@@ -111,12 +113,25 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
 };
 
 function App() {
-  const [cart, setCart] = useState<any[]>([
-    { id: '3', name: 'Manteau Ceinturé', subtitle: 'Pur Cachemire Double-Face', color: 'SABLE', size: 'S', price: 460, quantity: 1, image: 'https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=200&h=200&fit=crop' },
-    { id: '6', name: 'Pull Maille Côtelée', subtitle: 'Laine Mérinos Superfine', color: 'ÉCRU', size: 'M', price: 210, quantity: 1, image: 'https://images.unsplash.com/photo-1434389677669-e08b4cda3a7a?w=200&h=200&fit=crop' }
-  ]);
-  
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Initialiser le panier depuis le storage
+    setCart(getStoredCart());
+
+    // Synchroniser en direct le panier
+    const onCartUpdate = () => setCart(getStoredCart());
+    window.addEventListener('epure_cart_updated', onCartUpdate);
+
+    // Initialiser le statut de connexion
+    const active = getActiveUser();
+    if (active) {
+      setIsLoggedIn(true);
+    }
+
+    return () => window.removeEventListener('epure_cart_updated', onCartUpdate);
+  }, []);
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
