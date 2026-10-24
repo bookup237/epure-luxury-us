@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createOrder } from '../data/orders';
 
 const Cart = ({ cart, setCart, isLoggedIn }: { cart: any[], setCart: any, isLoggedIn: boolean }) => {
   const navigate = useNavigate();
@@ -8,9 +9,36 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: any[], setCart: any, isLogg
   const handleCheckout = () => {
     if (!isLoggedIn) {
       navigate('/account');
-    } else {
-      alert('Parfait ! Redirection vers la passerelle de paiement (Stripe, etc.)...');
+      return;
     }
+
+    if (cart.length === 0) {
+      alert('Votre panier est vide.');
+      return;
+    }
+
+    // Enregistrer la commande dans le registre de l'Atelier
+    const newOrder = createOrder({
+      customerName: 'Client ÉPURE Authentifié',
+      customerEmail: 'client.vip@epure-paris.com',
+      address: 'Paris 8e, Avenue Montaigne, FR',
+      items: cart.map(i => ({
+        id: i.id,
+        name: i.name,
+        subtitle: i.subtitle,
+        color: i.color,
+        size: i.size,
+        price: i.price,
+        quantity: i.quantity,
+        image: i.image
+      })),
+      total: subtotal
+    });
+
+    // Vider le panier après commande
+    setCart([]);
+    alert(`Commande ${newOrder.id} validée avec succès (${subtotal.toFixed(2)} €) ! Elle a été transmise en direct au tableau de bord Atelier.`);
+    navigate('/atelier');
   };
 
   const updateQuantity = (id: string, color: string, size: string, delta: number) => {
