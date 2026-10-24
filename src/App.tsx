@@ -5,6 +5,7 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Atelier from './pages/Atelier';
 import Login from './pages/Login';
+import Discover from './pages/Discover';
 import { LanguageProvider, useLanguage } from './i18n';
 import { SearchModal } from './components/SearchModal';
 import Footer from './components/Footer';
@@ -42,7 +43,7 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8 text-xs font-bold tracking-widest uppercase text-gray-500">
           <Link to="/" className="text-[#1a1a1a] hover:text-[#8b7355] transition-colors">{t('nav_boutique')}</Link>
-          <a href="#" className="hover:text-[#8b7355] transition-colors">{t('nav_decouvrir')}</a>
+          <Link to="/discover" className="hover:text-[#8b7355] transition-colors">{t('nav_decouvrir')}</Link>
         </nav>
         
         {/* Right side: Search, Cart, Profile */}
@@ -83,12 +84,12 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#faf8f5] border-t border-[#ede5db] flex justify-around items-center py-3 px-2 z-50 safe-area-pb">
         <Link to="/" className={`flex flex-col items-center gap-1 ${location.pathname === '/' ? 'text-[#1a1a1a]' : 'text-gray-400'}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span className="text-[10px] font-medium tracking-wider uppercase">Boutique</span>
+          <span className="text-[10px] font-medium tracking-wider uppercase">{t('nav_boutique')}</span>
         </Link>
-        <button className="flex flex-col items-center gap-1 text-gray-400">
+        <Link to="/discover" className={`flex flex-col items-center gap-1 ${location.pathname === '/discover' ? 'text-[#1a1a1a]' : 'text-gray-400'}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span className="text-[10px] font-medium tracking-wider uppercase">Découvrir</span>
-        </button>
+          <span className="text-[10px] font-medium tracking-wider uppercase">{t('nav_decouvrir')}</span>
+        </Link>
         <Link to="/cart" className={`flex flex-col items-center gap-1 relative ${location.pathname === '/cart' ? 'text-[#1a1a1a]' : 'text-gray-400'}`}>
           <div className="relative">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -124,6 +125,7 @@ function App() {
       <Layout cartCount={cartCount}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/discover" element={<Discover />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart cart={cart} setCart={setCart} isLoggedIn={isLoggedIn} />} />
           <Route path="/account" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
