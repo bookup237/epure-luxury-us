@@ -1,53 +1,154 @@
-import React, { createContext, useState, useContext } from 'react';
+export type Language = 'en' | 'fr';
 
-const dictionary = {
+export interface Translations {
+  [key: string]: {
+    [key: string]: string;
+  };
+}
+
+export const dictionary: Translations = {
+  en: {
+    // Navigation
+    nav_boutique: 'Shop',
+    nav_decouvrir: 'Discover',
+    nav_cart: 'Bag',
+    nav_account: 'Account',
+    nav_atelier: 'Atelier (Admin)',
+
+    // Hero Section
+    hero_season: 'Fall / Winter 2025 Collection',
+    hero_title: 'Pure Lines &\nNoble Fabrics',
+    hero_subtitle: 'A wardrobe sculpted in the quiet intimacy of the atelier. Exceptional Italian & Scottish wools, timeless silhouettes.',
+    hero_cta: 'Explore the Wardrobe',
+
+    // Product Section & Tabs
+    section_title: 'Recent Selection — New Arrivals',
+    pieces_count: 'Pieces',
+    tab_all: 'All',
+    tab_coats: 'Wool Overcoats',
+    tab_cashmere: 'Cashmere',
+    tab_pants: 'Trousers',
+    no_items: 'No pieces available in this category at the moment.',
+
+    // Badges
+    badge_new: 'NEW IN',
+    badge_limited: 'LIMITED EDITION',
+    badge_signature: 'SIGNATURE PIECE',
+    badge_restock: 'RESTOCK',
+
+    // Product Detail
+    atelier_ref: 'ÉPURE Atelier • Ref',
+    add_to_cart: 'Add to Shopping Bag',
+    complimentary_shipping: 'Complimentary shipping across the United States',
+    product_details: 'Garment Details',
+    composition: 'Composition & Care',
+    shipping_returns: 'Shipping & Returns',
+
+    // Cart
+    cart_title: 'Shopping Bag',
+    cart_items: 'items',
+    cart_shipping_banner: 'Complimentary Express Shipping across the US (2-day FedEx)',
+    cart_shipping_free: 'Free',
+    cart_empty: 'Your shopping bag is empty.',
+    cart_size: 'Size',
+    cart_promo_placeholder: 'Promo code / Gift card',
+    cart_apply: 'Apply',
+    cart_summary: 'Order Summary',
+    cart_subtotal: 'Subtotal',
+    cart_shipping_label: 'Standard Express Shipping (FedEx)',
+    cart_packaging: 'Signature Gift Box & Garment Bag',
+    cart_included: '[ Included ] $0.00',
+    cart_total: 'Total',
+    cart_taxes: 'US Sales Taxes included at checkout',
+    cart_checkout_btn: 'Proceed to Secure Checkout',
+
+    // Login
+    login_title_in: 'Sign In',
+    login_title_up: 'Create an Account',
+    login_desc_in: 'Access your order history, exclusive perks, and tracking.',
+    login_desc_up: 'Join the Maison ÉPURE for a tailored experience.',
+    login_firstname: 'First Name',
+    login_lastname: 'Last Name',
+    login_email: 'Email',
+    login_password: 'Password',
+    login_forgot: 'Forgot password?',
+    login_btn_in: 'Sign In',
+    login_btn_up: 'Complete Registration',
+    login_switch_in: 'New to ÉPURE?',
+    login_switch_up: 'Already have an account?',
+
+    // Search
+    search_placeholder: 'What are you searching for?',
+    search_no_results: 'No results found for',
+
+    // Footer
+    footer_tagline: 'High-end luxury garment house. Sculpted pure lines and noble fabrics crafted in European heritage mills.',
+    footer_shop: 'Collections',
+    footer_services: 'Client Services',
+    footer_service_1: 'Complimentary 2-Day FedEx delivery in the US',
+    footer_service_2: '30-day hassle-free returns',
+    footer_service_3: 'Encrypted checkout (Apple Pay, Amex, PayPal)',
+    footer_contact_title: 'Flagship & Concierge',
+    footer_address: '740 Madison Avenue, New York, NY 10065',
+    footer_phone: '+1 (212) 555-0198',
+    footer_email: 'concierge.us@epure-paris.com',
+    footer_rights: 'All rights reserved. United States.'
+  },
   fr: {
     // Navigation
     nav_boutique: 'Boutique',
     nav_decouvrir: 'Découvrir',
-    nav_panier: 'Panier',
-    nav_compte: 'Compte',
-    
-    // Home
-    hero_season: 'HIVER 2024',
-    hero_title: "L'Élégance Silencieuse",
-    hero_subtitle: 'Découvrez notre nouvelle collection capsule. Des coupes intemporelles, tissées dans les matières les plus nobles.',
-    hero_cta: 'Explorer la collection',
-    
-    cat_all: 'Tout',
-    cat_coats: 'Manteaux',
-    cat_knits: 'Mailles',
-    cat_pants: 'Pantalons',
-    
-    values_title: 'Atelier & Engagements',
-    val_1_title: 'Savoir-Faire',
-    val_1_desc: 'Coupé et assemblé à la main dans nos ateliers parisiens.',
-    val_2_title: 'Matières Pures',
-    val_2_desc: 'Laine mérinos, cachemire et soie sourcés éthiquement.',
-    val_3_title: 'Édition Limitée',
-    val_3_desc: 'Chaque pièce est numérotée pour garantir son exclusivité.',
-    
-    mag_tag: 'Édition Numéro 07',
-    mag_title: 'Le Carnet de Style',
-    mag_desc: 'Comment composer une garde-robe capsule cohérente pour l\'hiver.',
-    mag_link: 'Consulter l\'éditorial ↗',
+    nav_cart: 'Panier',
+    nav_account: 'Compte',
+    nav_atelier: 'Atelier (Admin)',
+
+    // Hero Section
+    hero_season: 'Collection Automne / Hiver 2025',
+    hero_title: 'Lignes pures &\nmatières nobles',
+    hero_subtitle: 'Une garde-robe sculptée dans le silence de l’atelier. Tissus d’exception et coupes irréprochables.',
+    hero_cta: 'Explorer le vestiaire',
+
+    // Product Section & Tabs
+    section_title: 'Sélection Récente — Nouveautés',
+    pieces_count: 'Pièces',
+    tab_all: 'Tous',
+    tab_coats: 'Manteaux en laine',
+    tab_cashmere: 'Cachemire',
+    tab_pants: 'Pantalons',
+    no_items: 'Aucune pièce disponible dans cette catégorie pour le moment.',
+
+    // Badges
+    badge_new: 'NOUVEAUTÉ',
+    badge_limited: 'ÉDITION LIMITÉE',
+    badge_signature: 'PIÈCE SIGNATURE',
+    badge_restock: 'RESTOCK',
+
+    // Product Detail
+    atelier_ref: 'ÉPURE Atelier • Ref',
+    add_to_cart: 'Ajouter au panier',
+    complimentary_shipping: 'Livraison express offerte aux États-Unis',
+    product_details: 'Détails du vêtement',
+    composition: 'Composition & Entretien',
+    shipping_returns: 'Livraisons & Retours',
 
     // Cart
     cart_title: 'Mon Panier',
     cart_items: 'articles',
-    cart_shipping_msg: 'Livraison express offerte en France métropolitaine',
-    cart_free: 'Offerte',
+    cart_shipping_banner: 'Livraison express offerte aux USA (FedEx 2 jours)',
+    cart_shipping_free: 'Offerte',
+    cart_empty: 'Votre panier est vide.',
+    cart_size: 'Taille',
     cart_promo_placeholder: 'Code privilège / carte cadeau',
     cart_apply: 'Appliquer',
     cart_summary: 'Récapitulatif financier',
     cart_subtotal: 'Sous-total',
-    cart_shipping: 'Livraison Standard Express',
-    cart_gift: 'Coffret Signature & Housse Atelier',
-    cart_included: '[ Inclus ]',
+    cart_shipping_label: 'Livraison Standard Express (FedEx)',
+    cart_packaging: 'Coffret Signature & Housse Atelier',
+    cart_included: '[ Inclus ] 0,00 $',
     cart_total: 'Total',
-    cart_taxes: 'Taxes locales et douanes incluses',
-    cart_checkout: 'Passer au paiement sécurisé',
-    
+    cart_taxes: 'Taxes américaines incluses',
+    cart_checkout_btn: 'Passer au paiement sécurisé',
+
     // Login
     login_title_in: 'Connexion',
     login_title_up: 'Créer un compte',
@@ -62,80 +163,27 @@ const dictionary = {
     login_btn_up: 'Valider l\'inscription',
     login_switch_in: 'Nouveau sur ÉPURE ?',
     login_switch_up: 'Vous avez déjà un compte ?',
-    
+
     // Search
     search_placeholder: 'Que recherchez-vous ?',
-    search_no_results: 'Aucun résultat pour'
-  },
-  en: {
-    // Navigation
-    nav_boutique: 'Shop',
-    nav_decouvrir: 'Discover',
-    nav_panier: 'Cart',
-    nav_compte: 'Account',
-    
-    // Home
-    hero_season: 'WINTER 2024',
-    hero_title: "Quiet Elegance",
-    hero_subtitle: 'Discover our new capsule collection. Timeless cuts, woven from the finest materials.',
-    hero_cta: 'Explore collection',
-    
-    cat_all: 'All',
-    cat_coats: 'Coats',
-    cat_knits: 'Knitwear',
-    cat_pants: 'Trousers',
-    
-    values_title: 'Atelier & Commitments',
-    val_1_title: 'Craftsmanship',
-    val_1_desc: 'Hand-cut and assembled in our Parisian ateliers.',
-    val_2_title: 'Pure Materials',
-    val_2_desc: 'Ethically sourced merino wool, cashmere, and silk.',
-    val_3_title: 'Limited Edition',
-    val_3_desc: 'Each piece is numbered to guarantee exclusivity.',
-    
-    mag_tag: 'Issue Number 07',
-    mag_title: 'The Style Journal',
-    mag_desc: 'How to build a cohesive winter capsule wardrobe.',
-    mag_link: 'Read editorial ↗',
+    search_no_results: 'Aucun résultat pour',
 
-    // Cart
-    cart_title: 'My Cart',
-    cart_items: 'items',
-    cart_shipping_msg: 'Complimentary express shipping within France',
-    cart_free: 'Free',
-    cart_promo_placeholder: 'Gift card or discount code',
-    cart_apply: 'Apply',
-    cart_summary: 'Order Summary',
-    cart_subtotal: 'Subtotal',
-    cart_shipping: 'Standard Express Shipping',
-    cart_gift: 'Signature Box & Garment Bag',
-    cart_included: '[ Included ]',
-    cart_total: 'Total',
-    cart_taxes: 'Local taxes and duties included',
-    cart_checkout: 'Proceed to secure checkout',
-    
-    // Login
-    login_title_in: 'Sign In',
-    login_title_up: 'Create Account',
-    login_desc_in: 'Access your history, benefits, and order tracking.',
-    login_desc_up: 'Join the ÉPURE house for a tailored experience.',
-    login_firstname: 'First Name',
-    login_lastname: 'Last Name',
-    login_email: 'Email',
-    login_password: 'Password',
-    login_forgot: 'Forgot password?',
-    login_btn_in: 'Sign In',
-    login_btn_up: 'Complete Registration',
-    login_switch_in: 'New to ÉPURE?',
-    login_switch_up: 'Already have an account?',
-    
-    // Search
-    search_placeholder: 'What are you looking for?',
-    search_no_results: 'No results for'
+    // Footer
+    footer_tagline: 'Maison de confection haut de gamme à Paris. Lignes épurées et matières nobles façonnées en Europe.',
+    footer_shop: 'Collections',
+    footer_services: 'Services',
+    footer_service_1: 'Livraison express 2 jours offerte aux USA',
+    footer_service_2: 'Retours gratuits sous 30 jours',
+    footer_service_3: 'Paiement sécurisé crypté (Apple Pay, Amex, PayPal)',
+    footer_contact_title: 'Salons & Conciergerie',
+    footer_address: '740 Madison Avenue, New York, NY 10065',
+    footer_phone: '+1 (212) 555-0198',
+    footer_email: 'concierge.us@epure-paris.com',
+    footer_rights: 'Tous droits réservés. États-Unis.'
   }
 };
 
-type Language = 'fr' | 'en';
+import { createContext, useContext, useState } from 'react';
 
 interface LanguageContextType {
   lang: Language;
@@ -144,22 +192,17 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  lang: 'fr',
+  lang: 'en',
   setLang: () => {},
   t: (key: string) => key
 });
 
-const getBrowserLanguage = (): Language => {
-  const browserLang = navigator.language.split('-')[0].toLowerCase();
-  return browserLang === 'en' ? 'en' : 'fr'; // Le français par défaut pour le reste du monde
-};
-
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [lang, setLang] = useState<Language>(getBrowserLanguage());
+  // Par défaut en Anglais pour le marché américain
+  const [lang, setLang] = useState<Language>('en');
 
-  const t = (key: string) => {
-    // @ts-ignore
-    return dictionary[lang][key] || key;
+  const t = (key: string): string => {
+    return dictionary[lang]?.[key] || dictionary['en']?.[key] || key;
   };
 
   return (
