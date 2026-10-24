@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import products from '../data/products';
+import { getStoredProducts } from '../data/products';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const product = products.find(p => p.id === id);
+  const productList = getStoredProducts();
+  const product = productList.find(p => p.id === id);
   const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || null);
 
   if (!product) return <div className="p-8 text-center">Produit introuvable</div>;

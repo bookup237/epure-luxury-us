@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n';
-
-// On simule l'import des produits (idéalement ça vient d'une API)
-const searchProducts = [
-  { id: '1', name: 'Manteau Oversize en Laine', price: 890, image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=200&h=200&fit=crop' },
-  { id: '2', name: 'Pull Col Roulé Cachemire', price: 340, image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=200&h=200&fit=crop' },
-  { id: '3', name: 'Manteau Ceinturé', price: 460, image: 'https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=200&h=200&fit=crop' },
-  { id: '4', name: 'Pantalon Large Laine', price: 290, image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=200&h=200&fit=crop' },
-  { id: '6', name: 'Pull Maille Côtelée', price: 210, image: 'https://images.unsplash.com/photo-1434389677669-e08b4cda3a7a?w=200&h=200&fit=crop' }
-];
+import { getStoredProducts } from '../data/products';
 
 export const SearchModal = ({ onClose }: { onClose: () => void }) => {
   const [query, setQuery] = useState('');
   const { t } = useLanguage();
+  const searchProducts = getStoredProducts();
 
   // Bloquer le défilement de la page quand la recherche est ouverte
   useEffect(() => {

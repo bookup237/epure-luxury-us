@@ -12,7 +12,9 @@ export interface Product {
   ref?: string;
 }
 
-const products: Product[] = [
+const PRODUCTS_STORAGE_KEY = 'epure_catalog_products';
+
+export const initialProducts: Product[] = [
   {
     id: "1",
     name: "Manteau Oversize",
@@ -112,4 +114,40 @@ const products: Product[] = [
   }
 ];
 
-export default products;
+export const getStoredProducts = (): Product[] => {
+  try {
+    const raw = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(initialProducts));
+      return initialProducts;
+    }
+    return JSON.parse(raw);
+  } catch {
+    return initialProducts;
+  }
+};
+
+export const saveProducts = (prods: Product[]) => {
+  try {
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(prods));
+    // Notifier les composants d'un changement dans les produits
+    window.dispatchEvent(new Event('epure_products_updated'));
+  } catch (err) {
+    console.error('Erreur sauvegarde produits', err);
+  }
+};
+
+export const addProduct = (p: Omit<Product, 'id' | 'ref'>): Product => {
+  const existing = getStoredProducts();
+  const nextId = String(Date.now());
+  const newProduct: Product = {
+    ...p,
+    id: nextId,
+    ref: `EP-${Math.floor(100 + Math.random() * 900)}`
+  };
+  const updated = [newProduct, ...existing];
+  saveProducts(updated);
+  return newProduct;
+};
+
+export default initialProducts;

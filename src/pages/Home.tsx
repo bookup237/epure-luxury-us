@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import products from '../data/products';
+import { getStoredProducts, Product } from '../data/products';
 
 const Home = () => {
+  const [productList, setProductList] = useState<Product[]>([]);
   const [activeTab, setActiveTab] = useState('Tous');
   
-  const tabs = ['Tous', 'Manteaux en laine', 'Cachemire'];
+  useEffect(() => {
+    setProductList(getStoredProducts());
+    const onUpdate = () => setProductList(getStoredProducts());
+    window.addEventListener('epure_products_updated', onUpdate);
+    return () => window.removeEventListener('epure_products_updated', onUpdate);
+  }, []);
+
+  const tabs = ['Tous', 'Manteaux en laine', 'Cachemire', 'Pantalons'];
   
   const filteredProducts = activeTab === 'Tous' 
-    ? products 
-    : products.filter(p => {
-        if (activeTab === 'Manteaux en laine') return p.category === 'Manteau';
-        if (activeTab === 'Cachemire') return p.name.includes('Cachemire') || p.subtitle.includes('Cachemire');
+    ? productList 
+    : productList.filter(p => {
+        if (activeTab === 'Manteaux en laine') return p.category.includes('MANTEAU') || p.category === 'Manteau';
+        if (activeTab === 'Cachemire') return p.category.includes('CACHEMIRE') || p.name.includes('Cachemire') || p.subtitle.includes('Cachemire');
+        if (activeTab === 'Pantalons') return p.category.includes('PANTALON');
         return true;
       });
 
