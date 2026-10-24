@@ -102,57 +102,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Desktop layout: Atelier & Carnet side by side */}
-      <div className="md:grid md:grid-cols-2 md:gap-8 md:mb-16">
-        {/* Atelier & Engagements */}
-        <div className="bg-[#ede5db] px-6 py-12 md:p-16 text-center mb-8 md:mb-0 rounded-sm flex flex-col justify-center">
-          <svg className="mx-auto mb-4 text-[#8b7355]" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          <div className="text-[10px] md:text-xs font-semibold tracking-widest uppercase mb-3 text-gray-600">L'atelier & Engagements</div>
-          <h2 className="font-['Cormorant_Garamond'] text-2xl md:text-4xl mb-4 md:mb-6 leading-snug">Pour une élégance silencieuse et pérenne</h2>
-          <p className="text-sm md:text-base font-light text-gray-600 leading-relaxed mb-8 max-w-md mx-auto">
-            Chaque pièce est pensée comme un objet d'art fonctionnel. Nous sélectionnons des filatures historiques en Italie et en Écosse, en circuit court.
-          </p>
-          <div className="grid grid-cols-3 gap-2 md:gap-4 text-left">
-            <div className="bg-white p-3 md:p-4 rounded-sm shadow-sm">
-              <div className="text-xs md:text-sm mb-1 text-[#8b7355]">▨</div>
-              <div className="text-[9px] md:text-[10px] font-bold tracking-wider uppercase mb-1">100% Naturel</div>
-              <div className="text-[10px] md:text-xs text-gray-500 leading-tight hidden md:block">Fibres pures d'origine certifiée</div>
-            </div>
-            <div className="bg-white p-3 md:p-4 rounded-sm shadow-sm">
-              <div className="text-xs md:text-sm mb-1 text-[#8b7355]">⚐</div>
-              <div className="text-[9px] md:text-[10px] font-bold tracking-wider uppercase mb-1">Europe</div>
-              <div className="text-[10px] md:text-xs text-gray-500 leading-tight hidden md:block">Confection en petits ateliers</div>
-            </div>
-            <div className="bg-white p-3 md:p-4 rounded-sm shadow-sm">
-              <div className="text-xs md:text-sm mb-1 text-[#8b7355]">∞</div>
-              <div className="text-[9px] md:text-[10px] font-bold tracking-wider uppercase mb-1">Intemporel</div>
-              <div className="text-[10px] md:text-xs text-gray-500 leading-tight hidden md:block">Garantie réparation 5 ans</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-8">
-          {/* Carnet de Style */}
-          <div className="px-4 md:px-0 flex-1 h-full">
-            <div className="bg-[#f5f0eb] p-5 md:p-8 rounded-sm flex gap-4 md:gap-8 items-center h-full">
-              <div className="flex-1">
-                <div className="text-[9px] md:text-xs font-semibold tracking-widest uppercase mb-1 text-[#8b7355]">Édition Numéro 07</div>
-                <h3 className="font-['Cormorant_Garamond'] text-2xl md:text-3xl mb-2">Le Carnet de Style</h3>
-                <p className="text-xs md:text-sm text-gray-600 mb-4 md:mb-6 leading-relaxed max-w-xs">Comment composer une garde-robe capsule cohérente pour l'hiver.</p>
-                <button onClick={() => alert("Ouverture du Carnet de Style...")} className="text-[10px] md:text-xs font-bold tracking-widest uppercase border-b border-[#1a1a1a] pb-0.5 inline-flex items-center gap-1 hover:text-[#8b7355] hover:border-[#8b7355] transition-colors">Consulter l'éditorial ↗</button>
-              </div>
-              <div className="w-24 h-32 md:w-40 md:h-56 bg-[#ede5db] rounded-sm overflow-hidden flex-shrink-0 shadow-md">
-                <img 
-                  src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&h=800&fit=crop" 
-                  alt="Le Carnet de Style Épure" 
-                  className="w-full h-full object-cover" 
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
   );
 };
