@@ -1,68 +1,202 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const Footer: React.FC = () => (
-  <footer className="bg-[#1a1a1a] text-gray-300">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        {/* Brand */}
-        <div>
-          <h3 className="text-2xl font-bold text-white font-['Playfair_Display'] mb-4">SAMARA'S FURS</h3>
-          <p className="text-sm leading-relaxed">
-            Premium luxury furs and clothing, handcrafted in the USA. 
-            Experience unparalleled elegance and warmth since 1985.
-          </p>
-        </div>
+const Footer: React.FC = () => {
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
 
-        {/* Quick links */}
-        <div>
-          <h4 className="text-sm uppercase tracking-widest text-[#d4a843] mb-4 font-semibold">Quick Links</h4>
-          <ul className="space-y-2 text-sm">
-            <li><Link to="/" className="hover:text-white transition-colors">Home</Link></li>
-            <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
-            <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-          </ul>
-        </div>
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newsletterEmail.trim()) {
+      setSubscribed(true);
+      setTimeout(() => {
+        setNewsletterEmail('');
+      }, 3000);
+    }
+  };
 
-        {/* Customer Service */}
-        <div>
-          <h4 className="text-sm uppercase tracking-widest text-[#d4a843] mb-4 font-semibold">Customer Service</h4>
-          <ul className="space-y-2 text-sm">
-            <li><span className="hover:text-white transition-colors cursor-pointer">Shipping & Returns</span></li>
-            <li><span className="hover:text-white transition-colors cursor-pointer">Size Guide</span></li>
-            <li><span className="hover:text-white transition-colors cursor-pointer">Care Instructions</span></li>
-            <li><span className="hover:text-white transition-colors cursor-pointer">FAQ</span></li>
-          </ul>
-        </div>
+  return (
+    <footer className="bg-[#141414] text-[#ede5db] border-t border-[#262422] mt-16">
+      {/* Brand & Newsletter Banner */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-12 border-b border-[#262422]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-5">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="font-['Cormorant_Garamond'] text-3xl md:text-4xl tracking-widest text-[#f5f0eb] uppercase font-light">
+                ÉPURE
+              </span>
+              <span className="text-[9px] uppercase tracking-widest text-[#8b7355] border-l border-[#8b7355] pl-3 py-0.5">
+                Maison Fondée à Paris
+              </span>
+            </div>
+            <p className="text-xs md:text-sm text-gray-400 font-light leading-relaxed max-w-md">
+              Des silhouettes architecturales, taillées dans des matières pures et sans compromis. L'art du vestiaire silencieux et intemporel.
+            </p>
+          </div>
 
-        {/* Contact info */}
-        <div>
-          <h4 className="text-sm uppercase tracking-widest text-[#d4a843] mb-4 font-semibold">Contact Us</h4>
-          <ul className="space-y-2 text-sm">
-            <li>📍 123 Fifth Avenue, New York, NY 10001</li>
-            <li>📞 +1 (212) 555-0199</li>
-            <li>✉️ info@samarasfurs.com</li>
-          </ul>
-          <div className="flex space-x-4 mt-4">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
-            </a>
+          {/* Newsletter Box */}
+          <div className="lg:col-span-7 bg-[#1c1b19] p-6 md:p-8 rounded-sm border border-[#2e2a26]">
+            <div className="text-[10px] font-bold tracking-widest uppercase text-[#c4b5a4] mb-1">
+              Édition Privée &bull; Le Cercle ÉPURE
+            </div>
+            <h4 className="font-['Cormorant_Garamond'] text-2xl text-white mb-2">
+              Recevez les invitations exclusives et avant-premières
+            </h4>
+            <p className="text-xs text-gray-400 mb-4">
+              Une correspondance confidentielle par mois. Jamais de sollicitation superflue.
+            </p>
+
+            {subscribed ? (
+              <div className="bg-[#24221f] text-[#c4b5a4] p-3 text-xs tracking-wider border border-[#8b7355]/40 rounded-sm">
+                ✓ Bienvenue dans Le Cercle ÉPURE. Votre invitation privée vous a été adressée.
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="email"
+                  required
+                  placeholder="Votre adresse email personnelle"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  className="flex-1 bg-[#141414] border border-[#38332d] focus:border-[#c4b5a4] px-4 py-3 text-xs text-white placeholder:text-gray-500 outline-none rounded-sm transition-colors"
+                />
+                <button
+                  type="submit"
+                  className="bg-[#ede5db] text-[#141414] hover:bg-white px-6 py-3 text-[10px] font-bold tracking-widest uppercase rounded-sm transition-colors whitespace-nowrap"
+                >
+                  S'inscrire
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-gray-700 mt-8 pt-6 text-center text-xs text-gray-500">
-        &copy; {new Date().getFullYear()} Samara's Furs. All rights reserved.
+      {/* Navigation Columns */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+          {/* Col 1 : Maison */}
+          <div>
+            <h5 className="text-[10px] font-bold tracking-widest uppercase text-[#8b7355] mb-4">
+              La Maison
+            </h5>
+            <ul className="space-y-2.5 text-xs text-gray-400 font-light">
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Le Manifeste</Link>
+              </li>
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Filatures & Artisans</Link>
+              </li>
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Engagements Durables</Link>
+              </li>
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Le Carnet de Style</Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 2 : Collections */}
+          <div>
+            <h5 className="text-[10px] font-bold tracking-widest uppercase text-[#8b7355] mb-4">
+              Vestiaire
+            </h5>
+            <ul className="space-y-2.5 text-xs text-gray-400 font-light">
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Manteaux en Laine</Link>
+              </li>
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Cachemire Double-Face</Link>
+              </li>
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Pantalons & Lignes Pures</Link>
+              </li>
+              <li>
+                <Link to="/" className="hover:text-white transition-colors">Pièces Signatures</Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 3 : Conciergerie */}
+          <div>
+            <h5 className="text-[10px] font-bold tracking-widest uppercase text-[#8b7355] mb-4">
+              Conciergerie
+            </h5>
+            <ul className="space-y-2.5 text-xs text-gray-400 font-light">
+              <li>
+                <span className="hover:text-white transition-colors cursor-pointer" onClick={() => alert("Livraison express offerte avec écrin atelier pour toute commande.")}>
+                  Livraisons & Retours Offerts
+                </span>
+              </li>
+              <li>
+                <span className="hover:text-white transition-colors cursor-pointer" onClick={() => alert("Guide des tailles disponible sur chaque fiche vêtement.")}>
+                  Guide des Tailles Atelier
+                </span>
+              </li>
+              <li>
+                <span className="hover:text-white transition-colors cursor-pointer" onClick={() => alert("Nos pièces bénéficient d'une garantie et d'un service d'entretien dédié.")}>
+                  Soin & Entretien des Fibres
+                </span>
+              </li>
+              <li>
+                <Link to="/cart" className="hover:text-white transition-colors">Suivi de Commande</Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Col 4 : Salons & Contact */}
+          <div>
+            <h5 className="text-[10px] font-bold tracking-widest uppercase text-[#8b7355] mb-4">
+              Salons Privés
+            </h5>
+            <div className="space-y-2.5 text-xs text-gray-400 font-light">
+              <p className="text-white font-medium">Paris &bull; 8e Arrondissement</p>
+              <p>28 Rue du Faubourg Saint-Honoré</p>
+              <p className="text-[#c4b5a4] pt-1">Sur rendez-vous uniquement</p>
+              <p className="pt-2 text-[11px] text-gray-500">concierge@epure-paris.com</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Value Badges */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-10 mt-10 border-t border-b border-[#262422] text-center">
+          <div className="p-3">
+            <div className="text-[#8b7355] text-lg mb-1">▨</div>
+            <div className="text-[9px] font-bold tracking-widest uppercase text-white">Matières 100% Naturelles</div>
+            <div className="text-[11px] text-gray-500 mt-0.5">Laine vierge & pur cachemire</div>
+          </div>
+          <div className="p-3">
+            <div className="text-[#8b7355] text-lg mb-1">⚐</div>
+            <div className="text-[9px] font-bold tracking-widest uppercase text-white">Façonné en Europe</div>
+            <div className="text-[11px] text-gray-500 mt-0.5">Ateliers historiques en Italie</div>
+          </div>
+          <div className="p-3">
+            <div className="text-[#8b7355] text-lg mb-1">◈</div>
+            <div className="text-[9px] font-bold tracking-widest uppercase text-white">Écrin Signature Offert</div>
+            <div className="text-[11px] text-gray-500 mt-0.5">Housse de protection atelier</div>
+          </div>
+          <div className="p-3">
+            <div className="text-[#8b7355] text-lg mb-1">∞</div>
+            <div className="text-[9px] font-bold tracking-widest uppercase text-white">Garantie & Réparation</div>
+            <div className="text-[11px] text-gray-500 mt-0.5">Pièces conçues pour durer</div>
+          </div>
+        </div>
+
+        {/* Bottom Credits & Copyright */}
+        <div className="pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] font-medium tracking-widest uppercase text-gray-500 gap-4">
+          <div>
+            &copy; {new Date().getFullYear()} MAISON ÉPURE PARIS &mdash; TOUS DROITS RÉSERVÉS
+          </div>
+          <div className="flex gap-6">
+            <span className="hover:text-gray-300 cursor-pointer">Mentions Légales</span>
+            <span className="hover:text-gray-300 cursor-pointer">Confidentialité</span>
+            <span className="hover:text-gray-300 cursor-pointer">Conditions Générales</span>
+            <span className="hover:text-gray-300 cursor-pointer">Cookies</span>
+          </div>
+        </div>
       </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default Footer;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createOrder } from '../data/orders';
 
@@ -37,8 +36,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: any[], setCart: any, isLogg
 
     // Vider le panier après commande
     setCart([]);
-    alert(`Commande ${newOrder.id} validée avec succès (${subtotal.toFixed(2)} €) ! Elle a été transmise en direct au tableau de bord Atelier.`);
-    navigate('/atelier');
+    alert(`Commande ${newOrder.id} validée avec succès (${subtotal.toFixed(2)} €) ! Merci pour votre achat.`);
   };
 
   const updateQuantity = (id: string, color: string, size: string, delta: number) => {

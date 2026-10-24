@@ -7,11 +7,12 @@ import Atelier from './pages/Atelier';
 import Login from './pages/Login';
 import { LanguageProvider, useLanguage } from './i18n';
 import { SearchModal } from './components/SearchModal';
+import Footer from './components/Footer';
 
 const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount: number }) => {
   const location = useLocation();
   const isProductPage = location.pathname.includes('/product/');
-  const { lang, setLang, t } = useLanguage();
+  const { t } = useLanguage();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
@@ -42,10 +43,6 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
         <nav className="hidden md:flex items-center gap-8 text-xs font-bold tracking-widest uppercase text-gray-500">
           <Link to="/" className="text-[#1a1a1a] hover:text-[#8b7355] transition-colors">{t('nav_boutique')}</Link>
           <a href="#" className="hover:text-[#8b7355] transition-colors">{t('nav_decouvrir')}</a>
-          <Link to="/atelier" className="text-[#8b7355] hover:text-[#1a1a1a] transition-colors flex items-center gap-1.5 font-bold">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            Atelier (Admin)
-          </Link>
         </nav>
         
         {/* Right side: Search, Cart, Profile */}
@@ -79,6 +76,9 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
         {children}
       </main>
 
+      {/* Luxury Footer */}
+      <Footer />
+
       {/* Bottom Tab Bar (Mobile Only) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#faf8f5] border-t border-[#ede5db] flex justify-around items-center py-3 px-2 z-50 safe-area-pb">
         <Link to="/" className={`flex flex-col items-center gap-1 ${location.pathname === '/' ? 'text-[#1a1a1a]' : 'text-gray-400'}`}>
@@ -103,10 +103,6 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
         <Link to="/account" className={`flex flex-col items-center gap-1 ${location.pathname === '/account' ? 'text-[#1a1a1a]' : 'text-gray-400'}`}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span className="text-[10px] font-medium tracking-wider uppercase">Compte</span>
-        </Link>
-        <Link to="/atelier" className={`flex flex-col items-center gap-1 ${location.pathname === '/atelier' ? 'text-[#8b7355]' : 'text-gray-400'}`}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          <span className="text-[10px] font-medium tracking-wider uppercase">Atelier</span>
         </Link>
       </nav>
     </div>

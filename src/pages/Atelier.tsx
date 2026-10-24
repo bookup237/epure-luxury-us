@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { getStoredOrders, saveOrders, Order } from '../data/orders';
-import { getStoredProducts, addProduct, saveProducts, Product } from '../data/products';
+import { useState, useEffect } from 'react';
+import { getStoredOrders, saveOrders, type Order } from '../data/orders';
+import { getStoredProducts, addProduct, saveProducts, type Product } from '../data/products';
 
 const Atelier = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -8,7 +8,6 @@ const Atelier = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'ready'>('all');
   const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
-  const [activeRange, setActiveRange] = useState<'today' | '7days'>('today');
 
   // Modal d'ajout de produit
   const [showAddProductModal, setShowAddProductModal] = useState(false);

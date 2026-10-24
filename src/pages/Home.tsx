@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getStoredProducts, Product } from '../data/products';
+import { getStoredProducts, type Product } from '../data/products';
 
 const Home = () => {
   const [productList, setProductList] = useState<Product[]>([]);
@@ -141,8 +141,12 @@ const Home = () => {
                 <p className="text-xs md:text-sm text-gray-600 mb-4 md:mb-6 leading-relaxed max-w-xs">Comment composer une garde-robe capsule cohérente pour l'hiver.</p>
                 <button onClick={() => alert("Ouverture du Carnet de Style...")} className="text-[10px] md:text-xs font-bold tracking-widest uppercase border-b border-[#1a1a1a] pb-0.5 inline-flex items-center gap-1 hover:text-[#8b7355] hover:border-[#8b7355] transition-colors">Consulter l'éditorial ↗</button>
               </div>
-              <div className="w-24 h-32 md:w-40 md:h-56 bg-gray-200 rounded-sm overflow-hidden flex-shrink-0 shadow-md">
-                <img src="https://images.unsplash.com/photo-1601056637375-40742d7650f9?w=400&h=600&fit=crop" alt="Carnet" className="w-full h-full object-cover opacity-90" />
+              <div className="w-24 h-32 md:w-40 md:h-56 bg-[#ede5db] rounded-sm overflow-hidden flex-shrink-0 shadow-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&h=800&fit=crop" 
+                  alt="Le Carnet de Style Épure" 
+                  className="w-full h-full object-cover" 
+                />
               </div>
             </div>
           </div>
