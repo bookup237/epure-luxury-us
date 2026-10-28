@@ -46,10 +46,6 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
     const clientEmail = active ? active.email : 'client.vip@epure-paris.com';
 
     const fullAddress = `${shippingAddress.trim() || '740 Park Ave'}, ${shippingCity.trim() || 'New York'}, NY ${shippingZip.trim() || '10021'}, USA`;
-    const carrierName = deliveryMethod === 'in_house' 
-      ? 'ÉPURE Private White-Glove Courier (In-House)' 
-      : 'FedEx Express Air (fedex.com Tracked)';
-
     // 1. Create order
     const newOrder = createOrder({
       customerName: clientName,
@@ -73,15 +69,30 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
     setCart([]);
     setShowAddressModal(false);
 
-    // 3. Detailed Confirmation
-    alert(
-      `✓ ORDER CONFIRMED [${newOrder.id}]\n\n` +
-      `Delivery Type: ${carrierName}\n` +
-      `Destination: ${fullAddress}\n` +
-      `Payment: ${pendingPaymentMethod}\n` +
-      `Total Charged: $${subtotal.toFixed(2)}\n\n` +
-      `A receipt with your tracking link has been dispatched to ${clientEmail}.`
-    );
+    // 3. Clear message confirming email dispatch for shipping quote & payment instructions
+    if (deliveryMethod === 'fedex') {
+      alert(
+        `✓ ORDER REGISTERED [${newOrder.id}]\n\n` +
+        `Carrier Selected: FedEx.com\n` +
+        `Subtotal: $${subtotal.toFixed(2)}\n` +
+        `Destination: ${fullAddress}\n\n` +
+        `📧 EMAIL NOTIFICATION SENT:\n` +
+        `We have received your order! Because FedEx shipping rates are calculated based on your destination and parcel weight, our concierge has emailed you at ${clientEmail} with:\n` +
+        `1. The exact FedEx shipping quote and estimated transit time.\n` +
+        `2. The secure payment instructions for ${pendingPaymentMethod}.\n\n` +
+        `Your pieces will be prepared and dispatched via FedEx as soon as payment is confirmed.`
+      );
+    } else {
+      alert(
+        `✓ ORDER REGISTERED [${newOrder.id}]\n\n` +
+        `Carrier Selected: ÉPURE In-House Courier\n` +
+        `Subtotal: $${subtotal.toFixed(2)}\n` +
+        `Destination: ${fullAddress}\n\n` +
+        `📧 EMAIL NOTIFICATION SENT:\n` +
+        `We have sent your complete order summary and ${pendingPaymentMethod} payment instructions to ${clientEmail}.\n` +
+        `Our private courier will coordinate delivery with you once confirmed.`
+      );
+    }
   };
 
   const updateQuantity = (id: string, color: string, size: string, delta: number) => {
@@ -156,17 +167,17 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
         ))}
       </div>
 
-      {/* DELIVERY METHOD SELECTION (In-House vs FedEx) */}
+      {/* DELIVERY METHOD SELECTION */}
       {cart.length > 0 && (
         <div className="bg-white p-6 rounded-sm mb-6 border border-[#ede5db]">
           <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#8b7355] block mb-1">
-            Shipping Preference
+            Shipping Option
           </span>
           <h3 className="font-['Cormorant_Garamond'] text-2xl font-medium text-[#1a1a1a] mb-2">
-            How would you like to receive your pieces?
+            Select Your Delivery Preference
           </h3>
           <p className="text-xs text-gray-500 mb-5">
-            Select between our private Maison courier service or our official shipping partner FedEx.com.
+            Choose whether you prefer our private in-house delivery service or carrier dispatch via FedEx.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -191,14 +202,14 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                 </span>
               </div>
               <p className="text-xs text-gray-600 leading-relaxed font-light mb-2">
-                Hand-delivered directly by our Maison atelier team in our signature garment cover and wooden hanger.
+                Hand-delivered by our private atelier team in garment protection and hanger. Handled directly with the client.
               </p>
               <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">
-                Complimentary &bull; Same-Day / Scheduled
+                Scheduled with Maison Team
               </span>
             </div>
 
-            {/* Option 2: FedEx Delivery */}
+            {/* Option 2: FedEx Delivery (Calculated & Invoiced via Email) */}
             <div 
               onClick={() => setDeliveryMethod('fedex')}
               className={`p-4 rounded-sm border cursor-pointer transition-all ${
@@ -215,18 +226,18 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                     <span className="text-[#FF6200]">Ex</span>
                   </div>
                   <span className="font-semibold text-xs tracking-wider uppercase text-[#1a1a1a]">
-                    Official Partner (fedex.com)
+                    Partner Delivery (fedex.com)
                   </span>
                 </div>
-                <span className="text-[10px] font-bold tracking-widest uppercase bg-[#FF6200] text-white px-2 py-0.5 rounded-xs">
-                  FedEx Air
+                <span className="text-[10px] font-bold tracking-widest uppercase bg-[#4D148C] text-white px-2 py-0.5 rounded-xs">
+                  FedEx Tracked
                 </span>
               </div>
               <p className="text-xs text-gray-600 leading-relaxed font-light mb-2">
-                Dispatched via FedEx Priority Express with real-time live tracking directly on <span className="font-semibold text-[#4D148C]">fedex.com</span>.
+                Dispatched via FedEx. <strong className="font-medium text-gray-900">FedEx shipping fees and exact transit quote will be calculated and emailed to you directly</strong> based on your delivery address.
               </p>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#4D148C]">
-                Complimentary 2-Day FedEx Express
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF6200]">
+                Shipping quote & payment details sent by email
               </span>
             </div>
           </div>
@@ -247,7 +258,9 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
               <span className="text-sm text-gray-600 flex items-center gap-1.5">
                 {deliveryMethod === 'in_house' ? 'Maison In-House Courier' : 'FedEx Express (fedex.com)'}
               </span>
-              <span className="text-[10px] font-bold tracking-widest uppercase text-green-700">Free</span>
+              <span className="text-[10px] font-semibold tracking-wider text-gray-600">
+                {deliveryMethod === 'in_house' ? 'Included / Scheduled' : 'Calculated & Sent by Email'}
+              </span>
             </div>
             <div className="flex justify-between items-start">
               <span className="text-sm text-gray-600 max-w-[220px]">Signature Packaging & Hanger</span>
@@ -256,24 +269,28 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
           </div>
 
           <div className="flex justify-between items-end mb-1">
-            <span className="font-medium text-lg">{t('cart_total')}</span>
+            <span className="font-medium text-lg">{t('cart_total')} (Garments)</span>
             <span className="font-['Cormorant_Garamond'] text-3xl font-semibold">${subtotal.toFixed(2)}</span>
           </div>
-          <div className="text-[10px] text-gray-400 mb-6">{t('cart_taxes')}</div>
+          <div className="text-[10px] text-gray-400 mb-6">
+            {deliveryMethod === 'fedex' 
+              ? 'FedEx shipping costs & final invoice link will be forwarded to your email address' 
+              : 'Taxes and packaging included'}
+          </div>
 
           {/* Checkout Button */}
           <button 
-            onClick={() => initiateCheckout('Credit Card / Standard Checkout')} 
+            onClick={() => initiateCheckout('Standard Invoice / Bank Transfer')} 
             className="w-full bg-[#1a1a1a] text-white py-4 text-[10px] font-bold tracking-widest uppercase rounded-sm flex items-center justify-center gap-2 mb-4 hover:bg-black transition-colors shadow-sm"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            {t('cart_checkout_btn')}
+            Request Invoice & Shipping Details
           </button>
 
           {/* Separator */}
           <div className="flex items-center gap-3 my-3">
             <div className="flex-1 h-px bg-[#ede5db]"></div>
-            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-400">Or Express Pay With</span>
+            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-400">Or Pay via Express Methods</span>
             <div className="flex-1 h-px bg-[#ede5db]"></div>
           </div>
 
@@ -293,7 +310,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
             {/* 2. Cash App */}
             <button 
-              onClick={() => initiateCheckout('Cash App Pay')} 
+              onClick={() => initiateCheckout('Cash App')} 
               className="bg-[#00D632] hover:bg-[#00be2c] text-white py-3 px-2 rounded-sm flex items-center justify-center gap-1.5 transition-all shadow-xs"
               title="Pay with Cash App"
             >
@@ -330,7 +347,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
         </div>
       )}
 
-      {/* MODAL: SHIPPING ADDRESS & CONFIRMATION */}
+      {/* MODAL: SHIPPING ADDRESS & EMAIL INVOICE CONFIRMATION */}
       {showAddressModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-[#faf8f5] max-w-lg w-full p-6 md:p-8 rounded-sm shadow-2xl border border-[#ede5db] relative max-h-[90vh] overflow-y-auto">
@@ -343,21 +360,31 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
             <div className="mb-6">
               <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#8b7355] block mb-1">
-                Step 2 of 2 &bull; Shipping Destination
+                Order Request &bull; Delivery Destination
               </span>
               <h2 className="font-['Cormorant_Garamond'] text-3xl font-semibold text-[#1a1a1a]">
-                Enter Your Delivery Details
+                Delivery Address & Contact
               </h2>
-              <div className="mt-2 text-xs text-gray-600 flex items-center gap-2">
-                <span>Selected Method:</span>
-                {deliveryMethod === 'in_house' ? (
-                  <span className="font-bold text-[#1a1a1a] bg-[#ede5db] px-2 py-0.5 rounded-xs">
-                    🏛️ ÉPURE In-House Courier
-                  </span>
+              
+              <div className="mt-3 p-3 bg-white border border-[#ede5db] rounded-sm text-xs leading-relaxed">
+                {deliveryMethod === 'fedex' ? (
+                  <div>
+                    <div className="flex items-center gap-2 font-bold text-[#4D148C] mb-1">
+                      <span>📦 FedEx Partner Dispatch</span>
+                    </div>
+                    <p className="text-gray-600">
+                      FedEx shipping is not free: exact shipping fees and payment coordinates for <strong>{pendingPaymentMethod}</strong> will be calculated based on your destination and emailed to you directly.
+                    </p>
+                  </div>
                 ) : (
-                  <span className="font-bold text-[#4D148C] bg-purple-50 px-2 py-0.5 rounded-xs border border-purple-200">
-                    FedEx Express (fedex.com)
-                  </span>
+                  <div>
+                    <div className="flex items-center gap-2 font-bold text-[#1a1a1a] mb-1">
+                      <span>🏛️ ÉPURE Private In-House Delivery</span>
+                    </div>
+                    <p className="text-gray-600">
+                      Our private courier team will contact you via email with payment instructions for <strong>{pendingPaymentMethod}</strong> to schedule delivery.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -409,11 +436,11 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
               <div>
                 <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                  Special Delivery Instructions (Optional)
+                  Delivery Notes / Contact Phone (Optional)
                 </label>
                 <textarea 
                   rows={2}
-                  placeholder="e.g. Leave with doorman, ring bell 4B..."
+                  placeholder="e.g. Leave with doorman, call +1 (212)..."
                   value={shippingNotes}
                   onChange={e => setShippingNotes(e.target.value)}
                   className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
@@ -422,11 +449,11 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
               <div className="p-3 bg-white border border-[#ede5db] rounded-sm text-xs">
                 <div className="flex justify-between font-medium mb-1">
-                  <span>Total Due :</span>
+                  <span>Pieces Subtotal :</span>
                   <span className="font-bold">${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="text-[10px] text-gray-400">
-                  Payment Method: <span className="font-semibold text-gray-700">{pendingPaymentMethod}</span>
+                  Chosen Payment: <span className="font-semibold text-gray-700">{pendingPaymentMethod}</span> (details sent by email)
                 </div>
               </div>
 
@@ -435,7 +462,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                   type="submit"
                   className="flex-1 bg-[#1a1a1a] text-white py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-black transition-colors"
                 >
-                  Confirm & Place Order
+                  Send Order & Request Details
                 </button>
                 <button 
                   type="button"
