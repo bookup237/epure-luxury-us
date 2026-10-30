@@ -69,8 +69,16 @@ const Footer: React.FC = () => {
             </h4>
             <div className="space-y-2 text-xs text-[#4a4339]">
               <p>{t('footer_address')}</p>
-              <p className="text-[#1a1a1a] font-semibold">{t('footer_phone')}</p>
-              <p className="text-[#8b7355]">{t('footer_email')}</p>
+              <p>
+                <a href="tel:+17822020702" className="text-[#1a1a1a] font-semibold hover:text-[#8b7355] transition-colors">
+                  {t('footer_phone')}
+                </a>
+              </p>
+              <p>
+                <a href="mailto:concierge.us@epure-paris.com" className="text-[#8b7355] hover:underline">
+                  {t('footer_email')}
+                </a>
+              </p>
             </div>
           </div>
 

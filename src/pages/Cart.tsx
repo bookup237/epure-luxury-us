@@ -440,7 +440,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                 </label>
                 <textarea 
                   rows={2}
-                  placeholder="e.g. Leave with doorman, call +1 (212)..."
+                  placeholder="e.g. Leave with doorman, call +1 (782) 202-0702..."
                   value={shippingNotes}
                   onChange={e => setShippingNotes(e.target.value)}
                   className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"

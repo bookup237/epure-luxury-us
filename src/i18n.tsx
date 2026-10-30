@@ -90,7 +90,7 @@ export const dictionary: Translations = {
     footer_service_3: 'Encrypted checkout (Apple Pay, Amex, PayPal)',
     footer_contact_title: 'Flagship & Concierge',
     footer_address: '740 Madison Avenue, New York, NY 10065',
-    footer_phone: '+1 (212) 555-0198',
+    footer_phone: '+1 (782) 202-0702',
     footer_email: 'concierge.us@epure-paris.com',
     footer_rights: 'All rights reserved. United States.'
   },
@@ -177,7 +177,7 @@ export const dictionary: Translations = {
     footer_service_3: 'Paiement sécurisé crypté (Apple Pay, Amex, PayPal)',
     footer_contact_title: 'Salons & Conciergerie',
     footer_address: '740 Madison Avenue, New York, NY 10065',
-    footer_phone: '+1 (212) 555-0198',
+    footer_phone: '+1 (782) 202-0702',
     footer_email: 'concierge.us@epure-paris.com',
     footer_rights: 'Tous droits réservés. États-Unis.'
   }

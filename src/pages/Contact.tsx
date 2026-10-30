@@ -80,7 +80,7 @@ const Contact: React.FC = () => (
               <span className="text-2xl">📞</span>
               <div>
                 <h4 className="font-semibold text-gray-800">Phone</h4>
-                <p className="text-gray-600">+1 (212) 555-0199</p>
+                <p className="text-gray-600">+1 (782) 202-0702</p>
               </div>
             </div>
             <div className="flex items-start space-x-4">
