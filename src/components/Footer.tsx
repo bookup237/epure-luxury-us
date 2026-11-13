@@ -75,7 +75,7 @@ const Footer: React.FC = () => {
                 </a>
               </p>
               <p>
-                <a href="mailto:concierge.us@epure-paris.com" className="text-[#8b7355] hover:underline">
+                <a href={`mailto:${t('footer_email')}`} className="text-[#8b7355] hover:underline">
                   {t('footer_email')}
                 </a>
               </p>

@@ -43,7 +43,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
     e.preventDefault();
     const active = getActiveUser();
     const clientName = active ? `${active.firstName} ${active.lastName}` : 'VIP Client';
-    const clientEmail = active ? active.email : 'client.vip@epure-paris.com';
+    const clientEmail = active ? active.email : 'client.vip@epureluxury.com';
 
     const fullAddress = `${shippingAddress.trim() || '740 Park Ave'}, ${shippingCity.trim() || 'New York'}, NY ${shippingZip.trim() || '10021'}, USA`;
     // 1. Create order

@@ -91,7 +91,7 @@ export const dictionary: Translations = {
     footer_contact_title: 'Flagship & Concierge',
     footer_address: '740 Madison Avenue, New York, NY 10065',
     footer_phone: '+1 (782) 202-0702',
-    footer_email: 'concierge.us@epure-paris.com',
+    footer_email: 'concierge@epureluxury.com',
     footer_rights: 'All rights reserved. United States.'
   },
   fr: {
@@ -178,7 +178,7 @@ export const dictionary: Translations = {
     footer_contact_title: 'Salons & Conciergerie',
     footer_address: '740 Madison Avenue, New York, NY 10065',
     footer_phone: '+1 (782) 202-0702',
-    footer_email: 'concierge.us@epure-paris.com',
+    footer_email: 'concierge@epureluxury.com',
     footer_rights: 'Tous droits réservés. États-Unis.'
   }
 };
