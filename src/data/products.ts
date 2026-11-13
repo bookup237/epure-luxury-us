@@ -150,4 +150,21 @@ export const addProduct = (p: Omit<Product, 'id' | 'ref'>): Product => {
   return newProduct;
 };
 
+export const updateProduct = (id: string, updates: Partial<Product>): Product | null => {
+  const existing = getStoredProducts();
+  const index = existing.findIndex(p => p.id === id);
+  if (index === -1) return null;
+  const updated = { ...existing[index], ...updates };
+  existing[index] = updated;
+  saveProducts(existing);
+  return updated;
+};
+
+export const deleteProduct = (id: string) => {
+  const existing = getStoredProducts();
+  const updated = existing.filter(p => p.id !== id);
+  saveProducts(updated);
+  return updated;
+};
+
 export default initialProducts;
