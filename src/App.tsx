@@ -12,11 +12,12 @@ import Footer from './components/Footer';
 import { getStoredCart, type CartItem } from './data/cart';
 import { getActiveUser } from './data/auth';
 
-const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount: number }) => {
+const Layout = ({ children, cartCount, isLoggedIn }: { children: React.ReactNode, cartCount: number, isLoggedIn: boolean }) => {
   const location = useLocation();
   const isProductPage = location.pathname.includes('/product/');
   const { t } = useLanguage();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const activeUser = getActiveUser();
 
   return (
     <div className="min-h-screen bg-[#faf8f5] flex flex-col font-sans text-[#1a1a1a] pb-20 md:pb-0">
@@ -68,8 +69,23 @@ const Layout = ({ children, cartCount }: { children: React.ReactNode, cartCount:
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </button>
           )}
-          <Link to="/account" className="w-8 h-8 rounded-full bg-gray-300 overflow-hidden cursor-pointer hover:ring-2 ring-offset-2 ring-[#8b7355] transition-all">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop" alt="Profile" className="w-full h-full object-cover" />
+          <Link 
+            to="/account" 
+            title={isLoggedIn ? "Mon Compte ÉPURE" : "Connexion / Inscription"}
+            className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all ${
+              isLoggedIn 
+                ? 'bg-[#1a1a1a] text-[#f0ebe3] font-semibold text-xs border border-[#8b7355] shadow-xs' 
+                : 'border border-[#ede5db] text-gray-700 hover:text-black hover:border-black bg-white'
+            }`}
+          >
+            {isLoggedIn ? (
+              <span>{activeUser?.firstName?.slice(0, 1)?.toUpperCase() || 'VIP'}</span>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            )}
           </Link>
         </div>
       </header>
@@ -137,7 +153,7 @@ function App() {
 
   return (
     <LanguageProvider>
-      <Layout cartCount={cartCount}>
+      <Layout cartCount={cartCount} isLoggedIn={isLoggedIn}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />

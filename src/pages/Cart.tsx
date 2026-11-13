@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { createOrder } from '../data/orders';
 import { useLanguage } from '../i18n';
-import { getActiveUser } from '../data/auth';
+import { getActiveUser, registerUser } from '../data/auth';
 import { getStoredCart, saveCart, type CartItem } from '../data/cart';
 
 type DeliveryMethod = 'in_house' | 'fedex';
@@ -13,23 +13,35 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   // Delivery options state
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('in_house');
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('fedex');
   const [shippingAddress, setShippingAddress] = useState('');
   const [shippingCity, setShippingCity] = useState('');
   const [shippingZip, setShippingZip] = useState('');
   const [shippingNotes, setShippingNotes] = useState('');
+  
+  // Client Contact & Account Creation state
+  const [clientFirstName, setClientFirstName] = useState('');
+  const [clientLastName, setClientLastName] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [createAccount, setCreateAccount] = useState(false);
+  const [accountPassword, setAccountPassword] = useState('');
+
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [pendingPaymentMethod, setPendingPaymentMethod] = useState('Standard Checkout');
 
-  // Trigger checkout flow
-  const initiateCheckout = (paymentMethodName: string) => {
+  // Pré-remplir si le client est déjà connecté
+  useEffect(() => {
     const active = getActiveUser();
-    if (!isLoggedIn && !active) {
-      alert("Please sign in or create an account to proceed with your order.");
-      navigate('/account');
-      return;
+    if (active) {
+      setClientFirstName(active.firstName || '');
+      setClientLastName(active.lastName || '');
+      setClientEmail(active.email || '');
     }
+  }, [isLoggedIn]);
 
+  // Déclencher le paiement
+  const initiateCheckout = (paymentMethodName: string) => {
     if (cart.length === 0) {
       alert(t('cart_empty'));
       return;
@@ -41,16 +53,33 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
   const finalizeOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    const active = getActiveUser();
-    const clientName = active ? `${active.firstName} ${active.lastName}` : 'VIP Client';
-    const clientEmail = active ? active.email : 'client.vip@epureluxury.com';
 
-    const fullAddress = `${shippingAddress.trim() || '740 Park Ave'}, ${shippingCity.trim() || 'New York'}, NY ${shippingZip.trim() || '10021'}, USA`;
-    // 1. Create order
+    let finalName = `${clientFirstName.trim()} ${clientLastName.trim()}`.trim();
+    if (!finalName) finalName = 'Valued Client';
+
+    const finalEmail = clientEmail.trim();
+    if (!finalEmail) {
+      alert('Veuillez renseigner votre adresse e-mail pour recevoir le récapitulatif et le suivi.');
+      return;
+    }
+
+    // Si le client a coché "Créer un compte" et saisi un mot de passe
+    if (!isLoggedIn && createAccount && accountPassword) {
+      registerUser({
+        firstName: clientFirstName.trim() || 'Client',
+        lastName: clientLastName.trim() || 'ÉPURE',
+        email: finalEmail,
+        password: accountPassword
+      });
+    }
+
+    const fullAddress = `${shippingAddress.trim() || '450 Lexington Ave'}, ${shippingCity.trim() || 'New York'}, NY ${shippingZip.trim() || '10017'}, USA`;
+
+    // 1. Créer la commande pour l'Atelier admin
     const newOrder = createOrder({
-      customerName: clientName,
-      customerEmail: clientEmail,
-      address: fullAddress,
+      customerName: finalName,
+      customerEmail: finalEmail,
+      address: `${fullAddress}${clientPhone ? ` • Tél: ${clientPhone}` : ''}${shippingNotes ? ` • Note: ${shippingNotes}` : ''}`,
       items: cart.map(i => ({
         id: i.id,
         name: i.name,
@@ -61,38 +90,25 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
         quantity: i.quantity,
         image: i.image
       })),
-      total: subtotal
+      total: subtotal,
+      carrier: deliveryMethod === 'fedex' ? 'FedEx Priority' : 'ÉPURE Private Courier'
     });
 
-    // 2. Clear cart
+    // 2. Vider le panier
     saveCart([]);
     setCart([]);
     setShowAddressModal(false);
 
-    // 3. Clear message confirming email dispatch for shipping quote & payment instructions
-    if (deliveryMethod === 'fedex') {
-      alert(
-        `✓ ORDER REGISTERED [${newOrder.id}]\n\n` +
-        `Carrier Selected: FedEx.com\n` +
-        `Subtotal: $${subtotal.toFixed(2)}\n` +
-        `Destination: ${fullAddress}\n\n` +
-        `📧 EMAIL NOTIFICATION SENT:\n` +
-        `We have received your order! Because FedEx shipping rates are calculated based on your destination and parcel weight, our concierge has emailed you at ${clientEmail} with:\n` +
-        `1. The exact FedEx shipping quote and estimated transit time.\n` +
-        `2. The secure payment instructions for ${pendingPaymentMethod}.\n\n` +
-        `Your pieces will be prepared and dispatched via FedEx as soon as payment is confirmed.`
-      );
-    } else {
-      alert(
-        `✓ ORDER REGISTERED [${newOrder.id}]\n\n` +
-        `Carrier Selected: ÉPURE In-House Courier\n` +
-        `Subtotal: $${subtotal.toFixed(2)}\n` +
-        `Destination: ${fullAddress}\n\n` +
-        `📧 EMAIL NOTIFICATION SENT:\n` +
-        `We have sent your complete order summary and ${pendingPaymentMethod} payment instructions to ${clientEmail}.\n` +
-        `Our private courier will coordinate delivery with you once confirmed.`
-      );
-    }
+    // 3. Notification de confirmation
+    alert(
+      `✓ COMMANDE ENREGISTRÉE AVEC SUCCÈS [${newOrder.id}]\n\n` +
+      `Client : ${finalName}\n` +
+      `Email de confirmation : ${finalEmail}\n` +
+      `Transporteur : ${deliveryMethod === 'fedex' ? 'FedEx Express' : 'Courrier Privé ÉPURE'}\n` +
+      `Mode de règlement : ${pendingPaymentMethod}\n` +
+      `Total : $${subtotal.toFixed(2)}\n\n` +
+      `📧 Les instructions de paiement et le suivi d'expédition ont été envoyés à votre adresse e-mail.`
+    );
   };
 
   const updateQuantity = (id: string, color: string, size: string, delta: number) => {
@@ -115,43 +131,72 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
     setCart(updated);
   };
 
+  const clearEntireCart = () => {
+    if (window.confirm('Voulez-vous vider entièrement votre panier ?')) {
+      saveCart([]);
+      setCart([]);
+    }
+  };
+
+  const activeUser = getActiveUser();
+
   return (
     <div className="px-4 py-6 max-w-4xl mx-auto">
       <div className="flex justify-between items-baseline mb-6">
-        <h1 className="font-['Cormorant_Garamond'] text-3xl">{t('cart_title')}</h1>
-        <span className="text-[10px] font-bold tracking-widest uppercase text-gray-500">
-          [ {cart.length < 10 ? `0${cart.length}` : cart.length} {t('cart_items')} ]
-        </span>
+        <h1 className="font-['Cormorant_Garamond'] text-3xl font-semibold">{t('cart_title')}</h1>
+        <div className="flex items-center gap-4">
+          {cart.length > 0 && (
+            <button 
+              onClick={clearEntireCart}
+              className="text-[10px] uppercase tracking-wider text-red-500 hover:text-red-700 underline"
+            >
+              Vider le panier
+            </button>
+          )}
+          <span className="text-[10px] font-bold tracking-widest uppercase text-gray-500">
+            [ {cart.length < 10 ? `0${cart.length}` : cart.length} {t('cart_items')} ]
+          </span>
+        </div>
       </div>
 
       {/* Cart Items */}
       <div className="space-y-6 mb-8">
         {cart.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-sm border border-[#ede5db]">
-            <p className="text-gray-500 text-sm italic mb-4">{t('cart_empty')}</p>
+          <div className="text-center py-16 bg-white rounded-sm border border-[#ede5db] p-8">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#faf8f5] border border-[#ede5db] flex items-center justify-center text-gray-400">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+            </div>
+            <h3 className="font-['Cormorant_Garamond'] text-2xl font-medium text-[#1a1a1a] mb-1">
+              Votre panier est vide
+            </h3>
+            <p className="text-xs text-gray-500 max-w-sm mx-auto mb-6">
+              Découvrez notre vestiaire d'exception de haute confection et ajoutez les pièces de votre choix.
+            </p>
             <button 
               onClick={() => navigate('/')} 
-              className="bg-[#1a1a1a] text-white px-6 py-3 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-black"
+              className="bg-[#1a1a1a] text-white px-8 py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-black transition-colors"
             >
-              Browse The Wardrobe
+              Explorer la Collection
             </button>
           </div>
         ) : cart.map(item => (
           <div key={`${item.id}-${item.color}-${item.size}`} className="flex gap-4 bg-white p-4 rounded-sm border border-[#ede5db]">
-            <div className="w-24 h-32 bg-gray-200 rounded-sm flex-shrink-0">
-              <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-sm" />
+            <div className="w-24 h-32 bg-gray-100 rounded-sm flex-shrink-0 overflow-hidden">
+              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
             </div>
             <div className="flex-1 flex flex-col justify-between py-1">
               <div>
                 <div className="flex justify-between items-start">
-                  <h3 className="font-medium text-lg">{item.name}</h3>
+                  <h3 className="font-medium text-base md:text-lg text-[#1a1a1a]">{item.name}</h3>
                   <button onClick={() => removeItem(item.id, item.color, item.size)} className="text-gray-400 p-1 hover:text-red-500 transition-colors">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{item.subtitle}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{item.subtitle}</p>
                 <div className="text-[10px] font-bold tracking-widest uppercase mt-2 text-gray-600">
-                  {item.color} • {t('cart_size')} {item.size}
+                  {item.color} &bull; {t('cart_size')} {item.size}
                 </div>
               </div>
               <div className="flex justify-between items-end">
@@ -160,7 +205,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                   <span className="text-sm font-medium">{item.quantity}</span>
                   <button onClick={() => updateQuantity(item.id, item.color, item.size, 1)} className="text-gray-500 text-lg hover:text-black">+</button>
                 </div>
-                <div className="font-medium">${item.price * item.quantity}</div>
+                <div className="font-medium text-base">${item.price * item.quantity}.00</div>
               </div>
             </div>
           </div>
@@ -171,17 +216,40 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
       {cart.length > 0 && (
         <div className="bg-white p-6 rounded-sm mb-6 border border-[#ede5db]">
           <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#8b7355] block mb-1">
-            Shipping Option
+            Mode de Livraison
           </span>
           <h3 className="font-['Cormorant_Garamond'] text-2xl font-medium text-[#1a1a1a] mb-2">
-            Select Your Delivery Preference
+            Choisissez votre mode d'acheminement
           </h3>
           <p className="text-xs text-gray-500 mb-5">
-            Choose whether you prefer our private in-house delivery service or carrier dispatch via FedEx.
+            Sélectionnez une expédition prioritaire FedEx sécurisée ou le service de coursier privé de la Maison.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Option 1: In-House Delivery */}
+            {/* Option 1: FedEx Priority */}
+            <div 
+              onClick={() => setDeliveryMethod('fedex')}
+              className={`p-4 rounded-sm border cursor-pointer transition-all ${
+                deliveryMethod === 'fedex' 
+                  ? 'border-[#1a1a1a] bg-[#faf8f5] ring-1 ring-[#1a1a1a]' 
+                  : 'border-[#ede5db] hover:border-gray-400 bg-white'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-[#4D148C]">📦 FedEx Express</span>
+                  <span className="text-[8px] uppercase tracking-wider bg-[#ede5db] text-black px-1.5 py-0.5 rounded-xs font-bold">Recommandé</span>
+                </div>
+                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${deliveryMethod === 'fedex' ? 'border-[#1a1a1a]' : 'border-gray-300'}`}>
+                  {deliveryMethod === 'fedex' && <div className="w-2 h-2 rounded-full bg-[#1a1a1a]"></div>}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Expédition sécurisée sous pli scellé avec numéro de suivi en direct et remise contre signature.
+              </p>
+            </div>
+
+            {/* Option 2: In-House Private Courier */}
             <div 
               onClick={() => setDeliveryMethod('in_house')}
               className={`p-4 rounded-sm border cursor-pointer transition-all ${
@@ -190,286 +258,307 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                   : 'border-[#ede5db] hover:border-gray-400 bg-white'
               }`}
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">🏛️</span>
-                  <span className="font-semibold text-xs tracking-wider uppercase text-[#1a1a1a]">
-                    ÉPURE Private In-House Delivery
-                  </span>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-bold text-sm text-gray-800">🏛️ Coursier Privé ÉPURE</span>
+                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${deliveryMethod === 'in_house' ? 'border-[#1a1a1a]' : 'border-gray-300'}`}>
+                  {deliveryMethod === 'in_house' && <div className="w-2 h-2 rounded-full bg-[#1a1a1a]"></div>}
                 </div>
-                <span className="text-[10px] font-bold tracking-widest uppercase bg-[#1a1a1a] text-white px-2 py-0.5 rounded-xs">
-                  White Glove
-                </span>
               </div>
-              <p className="text-xs text-gray-600 leading-relaxed font-light mb-2">
-                Hand-delivered by our private atelier team in garment protection and hanger. Handled directly with the client.
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Livraison sur rendez-vous avec présentation sous housse atelier dans les zones métropolitaines éligibles.
               </p>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">
-                Scheduled with Maison Team
-              </span>
-            </div>
-
-            {/* Option 2: FedEx Delivery (Calculated & Invoiced via Email) */}
-            <div 
-              onClick={() => setDeliveryMethod('fedex')}
-              className={`p-4 rounded-sm border cursor-pointer transition-all ${
-                deliveryMethod === 'fedex' 
-                  ? 'border-[#4D148C] bg-[#faf8f5] ring-1 ring-[#4D148C]' 
-                  : 'border-[#ede5db] hover:border-gray-400 bg-white'
-              }`}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  {/* FedEx Logo */}
-                  <div className="flex font-black text-sm tracking-tighter">
-                    <span className="text-[#4D148C]">Fed</span>
-                    <span className="text-[#FF6200]">Ex</span>
-                  </div>
-                  <span className="font-semibold text-xs tracking-wider uppercase text-[#1a1a1a]">
-                    Partner Delivery (fedex.com)
-                  </span>
-                </div>
-                <span className="text-[10px] font-bold tracking-widest uppercase bg-[#4D148C] text-white px-2 py-0.5 rounded-xs">
-                  FedEx Tracked
-                </span>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed font-light mb-2">
-                Dispatched via FedEx. <strong className="font-medium text-gray-900">FedEx shipping fees and exact transit quote will be calculated and emailed to you directly</strong> based on your delivery address.
-              </p>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF6200]">
-                Shipping quote & payment details sent by email
-              </span>
             </div>
           </div>
         </div>
       )}
 
-      {/* Summary */}
+      {/* Cart Summary */}
       {cart.length > 0 && (
-        <div className="bg-white p-5 rounded-sm mb-6 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] border border-[#ede5db]">
-          <h3 className="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-4">{t('cart_summary')}</h3>
+        <div className="bg-white p-6 rounded-sm border border-[#ede5db]">
+          <h2 className="text-sm font-semibold tracking-wider uppercase mb-4">{t('cart_summary')}</h2>
           
-          <div className="space-y-3 mb-6 border-b border-[#f5f0eb] pb-6">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">{t('cart_subtotal')}</span>
+          <div className="space-y-3 text-xs mb-6 border-b border-[#ede5db] pb-6">
+            <div className="flex justify-between">
+              <span className="text-gray-500">{t('cart_subtotal')}</span>
               <span className="font-medium">${subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600 flex items-center gap-1.5">
-                {deliveryMethod === 'in_house' ? 'Maison In-House Courier' : 'FedEx Express (fedex.com)'}
-              </span>
-              <span className="text-[10px] font-semibold tracking-wider text-gray-600">
-                {deliveryMethod === 'in_house' ? 'Included / Scheduled' : 'Calculated & Sent by Email'}
+            <div className="flex justify-between">
+              <span className="text-gray-500">Expédition</span>
+              <span className="font-medium text-[#8b7355]">
+                {deliveryMethod === 'fedex' ? 'Calculée selon destination' : 'Sur rendez-vous'}
               </span>
             </div>
-            <div className="flex justify-between items-start">
-              <span className="text-sm text-gray-600 max-w-[220px]">Signature Packaging & Hanger</span>
-              <span className="text-[10px] font-bold tracking-widest uppercase text-gray-400">[ Included ] $0.00</span>
+            <div className="flex justify-between">
+              <span className="text-gray-500">{t('cart_packaging')}</span>
+              <span className="text-gray-400">{t('cart_included')}</span>
             </div>
           </div>
 
-          <div className="flex justify-between items-end mb-1">
-            <span className="font-medium text-lg">{t('cart_total')} (Garments)</span>
-            <span className="font-['Cormorant_Garamond'] text-3xl font-semibold">${subtotal.toFixed(2)}</span>
-          </div>
-          <div className="text-[10px] text-gray-400 mb-6">
-            {deliveryMethod === 'fedex' 
-              ? 'FedEx shipping costs & final invoice link will be forwarded to your email address' 
-              : 'Taxes and packaging included'}
+          <div className="flex justify-between items-baseline mb-6">
+            <span className="text-base font-medium">{t('cart_total')}</span>
+            <span className="font-['Cormorant_Garamond'] text-2xl font-bold">${subtotal.toFixed(2)}</span>
           </div>
 
           {/* Checkout Button */}
           <button 
-            onClick={() => initiateCheckout('Standard Invoice / Bank Transfer')} 
+            onClick={() => initiateCheckout('Commande & Facture')} 
             className="w-full bg-[#1a1a1a] text-white py-4 text-[10px] font-bold tracking-widest uppercase rounded-sm flex items-center justify-center gap-2 mb-4 hover:bg-black transition-colors shadow-sm"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Request Invoice & Shipping Details
+            Passer la commande & Demander les coordonnées
           </button>
 
           {/* Separator */}
           <div className="flex items-center gap-3 my-3">
             <div className="flex-1 h-px bg-[#ede5db]"></div>
-            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-400">Or Pay via Express Methods</span>
+            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-400">Règlement Rapide Américain</span>
             <div className="flex-1 h-px bg-[#ede5db]"></div>
           </div>
 
           {/* US Express Payment Methods: Apple Pay, Cash App, Venmo, Zelle */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-1">
-            {/* 1. Apple Pay */}
             <button 
               onClick={() => initiateCheckout('Apple Pay')} 
               className="bg-black hover:bg-gray-900 text-white py-3 px-2 rounded-sm flex items-center justify-center gap-1.5 transition-all shadow-xs"
-              title="Pay with Apple Pay"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.93-2.85-.9.04-2 .6-2.65 1.35-.58.67-.99 1.74-.88 2.76 1 .08 1.98-.51 2.6-1.26z"/>
-              </svg>
-              <span className="text-xs font-semibold tracking-wider">Pay</span>
+              <span className="text-xs font-semibold tracking-wider"> Pay</span>
             </button>
-
-            {/* 2. Cash App */}
             <button 
               onClick={() => initiateCheckout('Cash App')} 
               className="bg-[#00D632] hover:bg-[#00be2c] text-white py-3 px-2 rounded-sm flex items-center justify-center gap-1.5 transition-all shadow-xs"
-              title="Pay with Cash App"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.2 14.5v1.5h-2.4v-1.5c-1.8-.3-2.8-1.5-2.8-3h2c0 .8.5 1.4 1.8 1.4.9 0 1.6-.4 1.6-1.1 0-.8-.7-1.1-2-1.4-2.1-.5-3.4-1.2-3.4-2.9 0-1.6 1.2-2.7 2.8-3V5h2.4v1.5c1.5.3 2.5 1.4 2.6 2.7h-2c-.1-.7-.5-1.2-1.5-1.2-.9 0-1.4.5-1.4 1 0 .6.5.9 1.8 1.2 2.3.5 3.6 1.3 3.6 3.1 0 1.7-1.3 2.9-2.7 3.2z"/>
-              </svg>
-              <span className="text-xs font-bold tracking-tight">Cash App</span>
+              <span className="text-xs font-bold tracking-tight">$ Cash App</span>
             </button>
-
-            {/* 3. Venmo */}
             <button 
               onClick={() => initiateCheckout('Venmo')} 
               className="bg-[#008CFF] hover:bg-[#007be0] text-white py-3 px-2 rounded-sm flex items-center justify-center gap-1.5 transition-all shadow-xs"
-              title="Pay with Venmo"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19.5 2.5c.8 1.4 1.1 2.9 1.1 4.7 0 5.8-5 13.3-9.1 18.8H5.2L2.5 4.3l6.3-.6 1.7 13.6c1.8-3 4-7.7 4-10.7 0-1.7-.3-2.9-.8-3.8l5.9-.3z"/>
-              </svg>
               <span className="text-xs font-bold tracking-tight italic">venmo</span>
             </button>
-
-            {/* 4. Zelle */}
             <button 
               onClick={() => initiateCheckout('Zelle')} 
               className="bg-[#7414CA] hover:bg-[#6510b0] text-white py-3 px-2 rounded-sm flex items-center justify-center gap-1.5 transition-all shadow-xs"
-              title="Pay with Zelle"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M13.8 2.5h-3.6L6 17.5h3.6l1.2-4.5h4.8l-1.2 4.5h3.6L22 2.5h-3.6l-1.2 4.5h-4.8l1.4-4.5zM2 17.5h3.6v4H2v-4z"/>
-              </svg>
               <span className="text-xs font-extrabold tracking-tight">zelle</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* MODAL: SHIPPING ADDRESS & EMAIL INVOICE CONFIRMATION */}
+      {/* MODAL CHECKOUT : INFORMATIONS CLIENT, CRÉATION DE COMPTE & ADRESSE DE LIVRAISON */}
       {showAddressModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-[#faf8f5] max-w-lg w-full p-6 md:p-8 rounded-sm shadow-2xl border border-[#ede5db] relative max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setShowAddressModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-black text-xl"
+              className="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl"
             >
               &times;
             </button>
 
             <div className="mb-6">
               <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#8b7355] block mb-1">
-                Order Request &bull; Delivery Destination
+                Maison ÉPURE &bull; Finalisation Commande
               </span>
               <h2 className="font-['Cormorant_Garamond'] text-3xl font-semibold text-[#1a1a1a]">
-                Delivery Address & Contact
+                Coordonnées & Expédition
               </h2>
-              
-              <div className="mt-3 p-3 bg-white border border-[#ede5db] rounded-sm text-xs leading-relaxed">
-                {deliveryMethod === 'fedex' ? (
-                  <div>
-                    <div className="flex items-center gap-2 font-bold text-[#4D148C] mb-1">
-                      <span>📦 FedEx Partner Dispatch</span>
-                    </div>
-                    <p className="text-gray-600">
-                      FedEx shipping is not free: exact shipping fees and payment coordinates for <strong>{pendingPaymentMethod}</strong> will be calculated based on your destination and emailed to you directly.
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex items-center gap-2 font-bold text-[#1a1a1a] mb-1">
-                      <span>🏛️ ÉPURE Private In-House Delivery</span>
-                    </div>
-                    <p className="text-gray-600">
-                      Our private courier team will contact you via email with payment instructions for <strong>{pendingPaymentMethod}</strong> to schedule delivery.
-                    </p>
-                  </div>
-                )}
-              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Renseignez vos coordonnées pour recevoir votre facture et le suivi de livraison.
+              </p>
             </div>
 
             <form onSubmit={finalizeOrder} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                  Street Address *
-                </label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="e.g. 740 Park Avenue, Apt 14B"
-                  value={shippingAddress}
-                  onChange={e => setShippingAddress(e.target.value)}
-                  className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-3 text-xs outline-none focus:border-[#1a1a1a]"
-                />
+              {/* SECTION CLIENT / COMPTE */}
+              <div className="bg-white p-4 rounded-sm border border-[#ede5db] space-y-3">
+                <div className="flex justify-between items-center pb-2 border-b border-[#f5f0eb]">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-gray-700">
+                    1. Vos Informations {activeUser ? `(${activeUser.firstName} ${activeUser.lastName})` : ''}
+                  </span>
+                  {!isLoggedIn && (
+                    <Link to="/account" className="text-[10px] text-[#8b7355] hover:underline font-semibold">
+                      Déjà client ? Se connecter
+                    </Link>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
+                      Prénom *
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="Jean"
+                      value={clientFirstName}
+                      onChange={e => setClientFirstName(e.target.value)}
+                      className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
+                      Nom *
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="Dupont"
+                      value={clientLastName}
+                      onChange={e => setClientLastName(e.target.value)}
+                      className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
+                      Email (Facture & Suivi) *
+                    </label>
+                    <input 
+                      type="email" 
+                      required
+                      placeholder="client@domaine.com"
+                      value={clientEmail}
+                      onChange={e => setClientEmail(e.target.value)}
+                      className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
+                      Téléphone (Transporteur)
+                    </label>
+                    <input 
+                      type="tel" 
+                      placeholder="+1 (782) 202-0702"
+                      value={clientPhone}
+                      onChange={e => setClientPhone(e.target.value)}
+                      className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
+                    />
+                  </div>
+                </div>
+
+                {/* Option de création de compte pour le client non connecté */}
+                {!isLoggedIn && (
+                  <div className="pt-2 border-t border-[#f5f0eb]">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-700">
+                      <input 
+                        type="checkbox" 
+                        checked={createAccount}
+                        onChange={e => setCreateAccount(e.target.checked)}
+                        className="rounded border-[#ede5db] text-black focus:ring-black"
+                      />
+                      <span>Créer mon compte client ÉPURE pour suivre mes commandes</span>
+                    </label>
+
+                    {createAccount && (
+                      <div className="mt-2.5">
+                        <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
+                          Choisissez un mot de passe *
+                        </label>
+                        <input 
+                          type="password" 
+                          required={createAccount}
+                          placeholder="Mot de passe sécurisé"
+                          value={accountPassword}
+                          onChange={e => setAccountPassword(e.target.value)}
+                          className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* SECTION ADRESSE DE LIVRAISON */}
+              <div className="bg-white p-4 rounded-sm border border-[#ede5db] space-y-3">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-gray-700 block pb-2 border-b border-[#f5f0eb]">
+                  2. Adresse de Livraison ({deliveryMethod === 'fedex' ? 'FedEx' : 'Coursier Privé'})
+                </span>
+
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    City *
+                    Adresse (Rue, numéro, appartement) *
                   </label>
                   <input 
                     type="text" 
                     required
-                    placeholder="New York"
-                    value={shippingCity}
-                    onChange={e => setShippingCity(e.target.value)}
-                    className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-3 text-xs outline-none focus:border-[#1a1a1a]"
+                    placeholder="Ex: 740 Park Avenue, Apt 14B"
+                    value={shippingAddress}
+                    onChange={e => setShippingAddress(e.target.value)}
+                    className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
+                      Ville *
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="New York"
+                      value={shippingCity}
+                      onChange={e => setShippingCity(e.target.value)}
+                      className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
+                      Code Postal (ZIP) *
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="10021"
+                      value={shippingZip}
+                      onChange={e => setShippingZip(e.target.value)}
+                      className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    ZIP Code *
+                    Instructions spécifiques (Optionnel)
                   </label>
                   <input 
                     type="text" 
-                    required
-                    placeholder="10021"
-                    value={shippingZip}
-                    onChange={e => setShippingZip(e.target.value)}
-                    className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-3 text-xs outline-none focus:border-[#1a1a1a]"
+                    placeholder="Ex: Laisser au concierge, sonner à l'interphone..."
+                    value={shippingNotes}
+                    onChange={e => setShippingNotes(e.target.value)}
+                    className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3.5 py-2 text-xs outline-none focus:border-[#1a1a1a]"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                  Delivery Notes / Contact Phone (Optional)
-                </label>
-                <textarea 
-                  rows={2}
-                  placeholder="e.g. Leave with doorman, call +1 (782) 202-0702..."
-                  value={shippingNotes}
-                  onChange={e => setShippingNotes(e.target.value)}
-                  className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
-                />
-              </div>
-
+              {/* RECAPITULATIF COMMANDE */}
               <div className="p-3 bg-white border border-[#ede5db] rounded-sm text-xs">
                 <div className="flex justify-between font-medium mb-1">
-                  <span>Pieces Subtotal :</span>
+                  <span>Sous-total des pièces ({cart.length}) :</span>
                   <span className="font-bold">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="text-[10px] text-gray-400">
-                  Chosen Payment: <span className="font-semibold text-gray-700">{pendingPaymentMethod}</span> (details sent by email)
+                <div className="text-[10px] text-gray-500">
+                  Règlement sélectionné : <span className="font-semibold text-gray-800">{pendingPaymentMethod}</span>
                 </div>
               </div>
 
               <div className="flex gap-2 pt-2">
                 <button 
                   type="submit"
-                  className="flex-1 bg-[#1a1a1a] text-white py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-black transition-colors"
+                  className="flex-1 bg-[#1a1a1a] text-white py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-black transition-colors shadow-xs"
                 >
-                  Send Order & Request Details
+                  Confirmer la Commande
                 </button>
                 <button 
                   type="button"
                   onClick={() => setShowAddressModal(false)}
                   className="bg-[#ede5db] text-black px-5 py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-[#d5cdc3]"
                 >
-                  Cancel
+                  Annuler
                 </button>
               </div>
             </form>

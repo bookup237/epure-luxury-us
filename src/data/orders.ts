@@ -119,14 +119,14 @@ export const saveOrders = (orders: Order[]) => {
   }
 };
 
-export const createOrder = (orderData: Omit<Order, 'id' | 'createdAt' | 'status' | 'carrier'>): Order => {
+export const createOrder = (orderData: Omit<Order, 'id' | 'createdAt' | 'status' | 'carrier'> & { carrier?: string }): Order => {
   const existing = getStoredOrders();
   const nextNumber = 4092 + existing.length - initialOrders.length;
   const newOrder: Order = {
     ...orderData,
     id: `#EP-${nextNumber}`,
     status: 'Payé • À expédier',
-    carrier: 'DHL Express',
+    carrier: orderData.carrier || 'FedEx Express',
     createdAt: 'À l’instant'
   };
   const updated = [newOrder, ...existing];

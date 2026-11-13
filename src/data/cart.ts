@@ -11,39 +11,15 @@ export interface CartItem {
 
 const CART_STORAGE_KEY = 'epure_cart_items';
 
-const initialCart: CartItem[] = [
-  { 
-    id: '3', 
-    name: 'Manteau Ceinturé', 
-    subtitle: 'Pur Cachemire Double-Face', 
-    color: 'SABLE', 
-    size: 'S', 
-    price: 460, 
-    quantity: 1, 
-    image: 'https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=400&h=600&fit=crop' 
-  },
-  { 
-    id: '6', 
-    name: 'Pull Maille Côtelée', 
-    subtitle: 'Laine Mérinos Superfine', 
-    color: 'ÉCRU', 
-    size: 'M', 
-    price: 210, 
-    quantity: 1, 
-    image: 'https://images.unsplash.com/photo-1434389677669-e08b4cda3a7a?w=400&h=600&fit=crop' 
-  }
-];
-
 export const getStoredCart = (): CartItem[] => {
   try {
     const raw = localStorage.getItem(CART_STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(initialCart));
-      return initialCart;
+      return [];
     }
     return JSON.parse(raw);
   } catch {
-    return initialCart;
+    return [];
   }
 };
 
