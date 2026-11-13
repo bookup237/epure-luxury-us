@@ -25,9 +25,9 @@ const Home = () => {
   const filteredProducts = activeTab === 'All' 
     ? productList 
     : productList.filter(p => {
-        if (activeTab === 'Coats') return p.category.includes('MANTEAU') || p.category.toLowerCase().includes('coat');
-        if (activeTab === 'Cashmere') return p.category.includes('CACHEMIRE') || p.name.toLowerCase().includes('cashmere') || p.subtitle.toLowerCase().includes('cashmere');
-        if (activeTab === 'Pants') return p.category.includes('PANTALON') || p.category.toLowerCase().includes('trouser');
+        if (activeTab === 'Coats') return p.category.toLowerCase().includes('coat') || p.category.includes('MANTEAU');
+        if (activeTab === 'Cashmere') return p.category.toLowerCase().includes('cashmere') || p.category.includes('CACHEMIRE') || p.name.toLowerCase().includes('cashmere') || p.subtitle.toLowerCase().includes('cashmere');
+        if (activeTab === 'Pants') return p.category.toLowerCase().includes('trouser') || p.category.toLowerCase().includes('pant') || p.category.includes('PANTALON');
         return true;
       });
 

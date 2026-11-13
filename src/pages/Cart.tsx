@@ -28,9 +28,9 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
   const [accountPassword, setAccountPassword] = useState('');
 
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [pendingPaymentMethod, setPendingPaymentMethod] = useState('Standard Checkout');
+  const [pendingPaymentMethod, setPendingPaymentMethod] = useState('Standard Invoice / Bank Transfer');
 
-  // Pré-remplir si le client est déjà connecté
+  // Autofill client contact if already signed in
   useEffect(() => {
     const active = getActiveUser();
     if (active) {
@@ -40,7 +40,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
     }
   }, [isLoggedIn]);
 
-  // Déclencher le paiement
+  // Trigger checkout flow
   const initiateCheckout = (paymentMethodName: string) => {
     if (cart.length === 0) {
       alert(t('cart_empty'));
@@ -59,11 +59,11 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
     const finalEmail = clientEmail.trim();
     if (!finalEmail) {
-      alert('Veuillez renseigner votre adresse e-mail pour recevoir le récapitulatif et le suivi.');
+      alert('Please provide your email address to receive order confirmation and invoice details.');
       return;
     }
 
-    // Si le client a coché "Créer un compte" et saisi un mot de passe
+    // Auto-create account if client opted in
     if (!isLoggedIn && createAccount && accountPassword) {
       registerUser({
         firstName: clientFirstName.trim() || 'Client',
@@ -73,13 +73,13 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
       });
     }
 
-    const fullAddress = `${shippingAddress.trim() || '450 Lexington Ave'}, ${shippingCity.trim() || 'New York'}, NY ${shippingZip.trim() || '10017'}, USA`;
+    const fullAddress = `${shippingAddress.trim() || '740 Madison Avenue'}, ${shippingCity.trim() || 'New York'}, NY ${shippingZip.trim() || '10065'}, USA`;
 
-    // 1. Créer la commande pour l'Atelier admin
+    // 1. Create order for Admin Atelier
     const newOrder = createOrder({
       customerName: finalName,
       customerEmail: finalEmail,
-      address: `${fullAddress}${clientPhone ? ` • Tél: ${clientPhone}` : ''}${shippingNotes ? ` • Note: ${shippingNotes}` : ''}`,
+      address: `${fullAddress}${clientPhone ? ` • Tel: ${clientPhone}` : ''}${shippingNotes ? ` • Note: ${shippingNotes}` : ''}`,
       items: cart.map(i => ({
         id: i.id,
         name: i.name,
@@ -94,20 +94,21 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
       carrier: deliveryMethod === 'fedex' ? 'FedEx Priority' : 'ÉPURE Private Courier'
     });
 
-    // 2. Vider le panier
+    // 2. Clear cart
     saveCart([]);
     setCart([]);
     setShowAddressModal(false);
 
-    // 3. Notification de confirmation
+    // 3. Confirmation alert for the client
     alert(
-      `✓ COMMANDE ENREGISTRÉE AVEC SUCCÈS [${newOrder.id}]\n\n` +
-      `Client : ${finalName}\n` +
-      `Email de confirmation : ${finalEmail}\n` +
-      `Transporteur : ${deliveryMethod === 'fedex' ? 'FedEx Express' : 'Courrier Privé ÉPURE'}\n` +
-      `Mode de règlement : ${pendingPaymentMethod}\n` +
-      `Total : $${subtotal.toFixed(2)}\n\n` +
-      `📧 Les instructions de paiement et le suivi d'expédition ont été envoyés à votre adresse e-mail.`
+      `✓ ORDER CONFIRMED [${newOrder.id}]\n\n` +
+      `Client: ${finalName}\n` +
+      `Notification Email: ${finalEmail}\n` +
+      `Selected Carrier: ${deliveryMethod === 'fedex' ? 'FedEx Express (2-Day Delivery)' : 'ÉPURE Private White-Glove Courier'}\n` +
+      `Payment Preference: ${pendingPaymentMethod}\n` +
+      `Total: $${subtotal.toFixed(2)}\n\n` +
+      `📧 EMAIL CONFIRMATION DISPATCHED:\n` +
+      `Your complete order invoice, payment coordinates, and FedEx tracking details have been forwarded to ${finalEmail}.`
     );
   };
 
@@ -132,7 +133,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
   };
 
   const clearEntireCart = () => {
-    if (window.confirm('Voulez-vous vider entièrement votre panier ?')) {
+    if (window.confirm('Would you like to clear your shopping bag?')) {
       saveCart([]);
       setCart([]);
     }
@@ -150,7 +151,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
               onClick={clearEntireCart}
               className="text-[10px] uppercase tracking-wider text-red-500 hover:text-red-700 underline"
             >
-              Vider le panier
+              Clear Bag
             </button>
           )}
           <span className="text-[10px] font-bold tracking-widest uppercase text-gray-500">
@@ -169,16 +170,16 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
               </svg>
             </div>
             <h3 className="font-['Cormorant_Garamond'] text-2xl font-medium text-[#1a1a1a] mb-1">
-              Votre panier est vide
+              Your shopping bag is empty
             </h3>
             <p className="text-xs text-gray-500 max-w-sm mx-auto mb-6">
-              Découvrez notre vestiaire d'exception de haute confection et ajoutez les pièces de votre choix.
+              Explore our curated wardrobe of bespoke virgin wools, pure cashmere knitwear, and tailoring.
             </p>
             <button 
               onClick={() => navigate('/')} 
               className="bg-[#1a1a1a] text-white px-8 py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-black transition-colors"
             >
-              Explorer la Collection
+              Explore The Collection
             </button>
           </div>
         ) : cart.map(item => (
@@ -216,13 +217,13 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
       {cart.length > 0 && (
         <div className="bg-white p-6 rounded-sm mb-6 border border-[#ede5db]">
           <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#8b7355] block mb-1">
-            Mode de Livraison
+            Shipping & Delivery Option
           </span>
           <h3 className="font-['Cormorant_Garamond'] text-2xl font-medium text-[#1a1a1a] mb-2">
-            Choisissez votre mode d'acheminement
+            Select Your Delivery Preference
           </h3>
           <p className="text-xs text-gray-500 mb-5">
-            Sélectionnez une expédition prioritaire FedEx sécurisée ou le service de coursier privé de la Maison.
+            Choose whether you prefer express FedEx insured dispatch or our white-glove private courier service.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -237,15 +238,15 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm text-[#4D148C]">📦 FedEx Express</span>
-                  <span className="text-[8px] uppercase tracking-wider bg-[#ede5db] text-black px-1.5 py-0.5 rounded-xs font-bold">Recommandé</span>
+                  <span className="font-bold text-sm text-[#4D148C]">📦 FedEx Express (2-Day)</span>
+                  <span className="text-[8px] uppercase tracking-wider bg-[#ede5db] text-black px-1.5 py-0.5 rounded-xs font-bold">Standard</span>
                 </div>
                 <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${deliveryMethod === 'fedex' ? 'border-[#1a1a1a]' : 'border-gray-300'}`}>
                   {deliveryMethod === 'fedex' && <div className="w-2 h-2 rounded-full bg-[#1a1a1a]"></div>}
                 </div>
               </div>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Expédition sécurisée sous pli scellé avec numéro de suivi en direct et remise contre signature.
+                Insured express shipment dispatched via FedEx with live tracking code and adult signature upon delivery.
               </p>
             </div>
 
@@ -259,13 +260,13 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-sm text-gray-800">🏛️ Coursier Privé ÉPURE</span>
+                <span className="font-bold text-sm text-gray-800">🏛️ ÉPURE White-Glove Courier</span>
                 <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${deliveryMethod === 'in_house' ? 'border-[#1a1a1a]' : 'border-gray-300'}`}>
                   {deliveryMethod === 'in_house' && <div className="w-2 h-2 rounded-full bg-[#1a1a1a]"></div>}
                 </div>
               </div>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Livraison sur rendez-vous avec présentation sous housse atelier dans les zones métropolitaines éligibles.
+                Scheduled personal appointment delivery with signature atelier garment bag in eligible metropolitan areas.
               </p>
             </div>
           </div>
@@ -283,9 +284,9 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
               <span className="font-medium">${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Expédition</span>
+              <span className="text-gray-500">Shipping</span>
               <span className="font-medium text-[#8b7355]">
-                {deliveryMethod === 'fedex' ? 'Calculée selon destination' : 'Sur rendez-vous'}
+                {deliveryMethod === 'fedex' ? 'Calculated by destination' : 'By appointment'}
               </span>
             </div>
             <div className="flex justify-between">
@@ -301,17 +302,17 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
           {/* Checkout Button */}
           <button 
-            onClick={() => initiateCheckout('Commande & Facture')} 
+            onClick={() => initiateCheckout('Standard Invoice / Wire Transfer')} 
             className="w-full bg-[#1a1a1a] text-white py-4 text-[10px] font-bold tracking-widest uppercase rounded-sm flex items-center justify-center gap-2 mb-4 hover:bg-black transition-colors shadow-sm"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Passer la commande & Demander les coordonnées
+            Proceed to Checkout & Request Invoice
           </button>
 
           {/* Separator */}
           <div className="flex items-center gap-3 my-3">
             <div className="flex-1 h-px bg-[#ede5db]"></div>
-            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-400">Règlement Rapide Américain</span>
+            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-400">US Express Payment Methods</span>
             <div className="flex-1 h-px bg-[#ede5db]"></div>
           </div>
 
@@ -345,7 +346,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
         </div>
       )}
 
-      {/* MODAL CHECKOUT : INFORMATIONS CLIENT, CRÉATION DE COMPTE & ADRESSE DE LIVRAISON */}
+      {/* MODAL CHECKOUT : CLIENT INFORMATION, ACCOUNT CREATION & SHIPPING DESTINATION */}
       {showAddressModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-[#faf8f5] max-w-lg w-full p-6 md:p-8 rounded-sm shadow-2xl border border-[#ede5db] relative max-h-[90vh] overflow-y-auto">
@@ -358,26 +359,26 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
             <div className="mb-6">
               <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#8b7355] block mb-1">
-                Maison ÉPURE &bull; Finalisation Commande
+                Maison ÉPURE &bull; Checkout & Order Finalization
               </span>
               <h2 className="font-['Cormorant_Garamond'] text-3xl font-semibold text-[#1a1a1a]">
-                Coordonnées & Expédition
+                Client & Delivery Details
               </h2>
               <p className="text-xs text-gray-500 mt-1">
-                Renseignez vos coordonnées pour recevoir votre facture et le suivi de livraison.
+                Please provide your contact information to receive your order invoice and FedEx tracking updates.
               </p>
             </div>
 
             <form onSubmit={finalizeOrder} className="space-y-4">
-              {/* SECTION CLIENT / COMPTE */}
+              {/* SECTION CLIENT / ACCOUNT */}
               <div className="bg-white p-4 rounded-sm border border-[#ede5db] space-y-3">
                 <div className="flex justify-between items-center pb-2 border-b border-[#f5f0eb]">
                   <span className="text-[10px] font-bold tracking-widest uppercase text-gray-700">
-                    1. Vos Informations {activeUser ? `(${activeUser.firstName} ${activeUser.lastName})` : ''}
+                    1. Contact Information {activeUser ? `(${activeUser.firstName} ${activeUser.lastName})` : ''}
                   </span>
                   {!isLoggedIn && (
                     <Link to="/account" className="text-[10px] text-[#8b7355] hover:underline font-semibold">
-                      Déjà client ? Se connecter
+                      Already a client? Sign In
                     </Link>
                   )}
                 </div>
@@ -385,12 +386,12 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                      Prénom *
+                      First Name *
                     </label>
                     <input 
                       type="text" 
                       required
-                      placeholder="Jean"
+                      placeholder="e.g. Alexander"
                       value={clientFirstName}
                       onChange={e => setClientFirstName(e.target.value)}
                       className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
@@ -398,12 +399,12 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                      Nom *
+                      Last Name *
                     </label>
                     <input 
                       type="text" 
                       required
-                      placeholder="Dupont"
+                      placeholder="e.g. Vance"
                       value={clientLastName}
                       onChange={e => setClientLastName(e.target.value)}
                       className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
@@ -414,12 +415,12 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                      Email (Facture & Suivi) *
+                      Email Address (Invoice & Tracking) *
                     </label>
                     <input 
                       type="email" 
                       required
-                      placeholder="client@domaine.com"
+                      placeholder="client@example.com"
                       value={clientEmail}
                       onChange={e => setClientEmail(e.target.value)}
                       className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
@@ -427,7 +428,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                      Téléphone (Transporteur)
+                      Phone Number (Courier Contact)
                     </label>
                     <input 
                       type="tel" 
@@ -439,7 +440,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                   </div>
                 </div>
 
-                {/* Option de création de compte pour le client non connecté */}
+                {/* Account creation opt-in for non-logged in client */}
                 {!isLoggedIn && (
                   <div className="pt-2 border-t border-[#f5f0eb]">
                     <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-700">
@@ -449,18 +450,18 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                         onChange={e => setCreateAccount(e.target.checked)}
                         className="rounded border-[#ede5db] text-black focus:ring-black"
                       />
-                      <span>Créer mon compte client ÉPURE pour suivre mes commandes</span>
+                      <span>Create an ÉPURE client account to save order history & tracking</span>
                     </label>
 
                     {createAccount && (
                       <div className="mt-2.5">
                         <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                          Choisissez un mot de passe *
+                          Create a Password *
                         </label>
                         <input 
                           type="password" 
                           required={createAccount}
-                          placeholder="Mot de passe sécurisé"
+                          placeholder="Enter a secure password"
                           value={accountPassword}
                           onChange={e => setAccountPassword(e.target.value)}
                           className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3 py-2 text-xs outline-none focus:border-black"
@@ -471,20 +472,20 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                 )}
               </div>
 
-              {/* SECTION ADRESSE DE LIVRAISON */}
+              {/* SECTION SHIPPING ADDRESS */}
               <div className="bg-white p-4 rounded-sm border border-[#ede5db] space-y-3">
                 <span className="text-[10px] font-bold tracking-widest uppercase text-gray-700 block pb-2 border-b border-[#f5f0eb]">
-                  2. Adresse de Livraison ({deliveryMethod === 'fedex' ? 'FedEx' : 'Coursier Privé'})
+                  2. Shipping Destination ({deliveryMethod === 'fedex' ? 'FedEx 2-Day' : 'Private Courier'})
                 </span>
 
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    Adresse (Rue, numéro, appartement) *
+                    Street Address *
                   </label>
                   <input 
                     type="text" 
                     required
-                    placeholder="Ex: 740 Park Avenue, Apt 14B"
+                    placeholder="e.g. 740 Madison Avenue, Apt 12B"
                     value={shippingAddress}
                     onChange={e => setShippingAddress(e.target.value)}
                     className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
@@ -494,7 +495,7 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                      Ville *
+                      City *
                     </label>
                     <input 
                       type="text" 
@@ -508,12 +509,12 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
                   <div>
                     <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                      Code Postal (ZIP) *
+                      ZIP Code *
                     </label>
                     <input 
                       type="text" 
                       required
-                      placeholder="10021"
+                      placeholder="10065"
                       value={shippingZip}
                       onChange={e => setShippingZip(e.target.value)}
                       className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
@@ -523,11 +524,11 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
 
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    Instructions spécifiques (Optionnel)
+                    Delivery Instructions (Optional)
                   </label>
                   <input 
                     type="text" 
-                    placeholder="Ex: Laisser au concierge, sonner à l'interphone..."
+                    placeholder="e.g. Leave with doorman, call upon arrival..."
                     value={shippingNotes}
                     onChange={e => setShippingNotes(e.target.value)}
                     className="w-full bg-[#faf8f5] border border-[#ede5db] rounded-sm px-3.5 py-2 text-xs outline-none focus:border-[#1a1a1a]"
@@ -535,14 +536,14 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                 </div>
               </div>
 
-              {/* RECAPITULATIF COMMANDE */}
+              {/* RECAP */}
               <div className="p-3 bg-white border border-[#ede5db] rounded-sm text-xs">
                 <div className="flex justify-between font-medium mb-1">
-                  <span>Sous-total des pièces ({cart.length}) :</span>
+                  <span>Pieces Subtotal ({cart.length}) :</span>
                   <span className="font-bold">${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="text-[10px] text-gray-500">
-                  Règlement sélectionné : <span className="font-semibold text-gray-800">{pendingPaymentMethod}</span>
+                  Payment Method: <span className="font-semibold text-gray-800">{pendingPaymentMethod}</span>
                 </div>
               </div>
 
@@ -551,14 +552,14 @@ const Cart = ({ cart, setCart, isLoggedIn }: { cart: CartItem[], setCart: any, i
                   type="submit"
                   className="flex-1 bg-[#1a1a1a] text-white py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-black transition-colors shadow-xs"
                 >
-                  Confirmer la Commande
+                  Confirm & Request Invoice
                 </button>
                 <button 
                   type="button"
                   onClick={() => setShowAddressModal(false)}
                   className="bg-[#ede5db] text-black px-5 py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-[#d5cdc3]"
                 >
-                  Annuler
+                  Cancel
                 </button>
               </div>
             </form>

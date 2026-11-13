@@ -14,11 +14,11 @@ const Atelier = () => {
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [newProductName, setNewProductName] = useState('');
   const [newProductSubtitle, setNewProductSubtitle] = useState('');
-  const [newProductCategory, setNewProductCategory] = useState('MANTEAUX EN LAINE');
+  const [newProductCategory, setNewProductCategory] = useState('WOOL OVERCOATS');
   const [newProductPrice, setNewProductPrice] = useState(280);
   const [newProductImage, setNewProductImage] = useState('https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&h=800&fit=crop');
   const [newProductDesc, setNewProductDesc] = useState('');
-  const [newProductBadge, setNewProductBadge] = useState<Product['badge']>('NOUVEAUTÉ');
+  const [newProductBadge, setNewProductBadge] = useState<Product['badge']>('NEW IN');
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [cropMode, setCropMode] = useState<'cover' | 'contain'>('cover');
 
@@ -30,7 +30,7 @@ const Atelier = () => {
   const [editPrice, setEditPrice] = useState(0);
   const [editImage, setEditImage] = useState('');
   const [editDesc, setEditDesc] = useState('');
-  const [editBadge, setEditBadge] = useState<Product['badge']>('NOUVEAUTÉ');
+  const [editBadge, setEditBadge] = useState<Product['badge']>('NEW IN');
   const [isProcessingEditImage, setIsProcessingEditImage] = useState(false);
   const [editCropMode, setEditCropMode] = useState<'cover' | 'contain'>('cover');
 
@@ -90,7 +90,7 @@ const Atelier = () => {
         setNewProductImage(standardizedDataUrl);
       }
     } catch (err: any) {
-      alert(`Erreur lors du traitement de l'image : ${err.message || err}`);
+      alert(`Image processing error: ${err.message || err}`);
     } finally {
       if (isEdit) {
         setIsProcessingEditImage(false);
@@ -107,16 +107,16 @@ const Atelier = () => {
 
     const created = addProduct({
       name: newProductName.trim(),
-      subtitle: newProductSubtitle.trim() || 'Création Atelier Épure',
-      description: newProductDesc.trim() || 'Confection artisanale dans les meilleurs ateliers européens.',
+      subtitle: newProductSubtitle.trim() || 'Épure Atelier Creation',
+      description: newProductDesc.trim() || 'Handcrafted in heritage European mills from pure noble fibers.',
       category: newProductCategory,
       price: Number(newProductPrice) || 150,
       image: newProductImage,
       badge: newProductBadge,
       sizes: ['XS', 'S', 'M', 'L', 'XL'],
       colors: [
-        { name: 'Écru Naturel', hex: '#f0ebe3' },
-        { name: 'Sable Lin', hex: '#c4b5a4' }
+        { name: 'Flaxen Sand', hex: '#c4b5a4' },
+        { name: 'Cream', hex: '#f0ebe3' }
       ]
     });
 
@@ -126,7 +126,7 @@ const Atelier = () => {
     setNewProductName('');
     setNewProductSubtitle('');
     setNewProductDesc('');
-    alert(`La pièce "${created.name}" a été ajoutée et est immédiatement visible par vos clients sur la boutique !`);
+    alert(`The piece "${created.name}" has been published and is immediately available online!`);
   };
 
   const openEditModal = (p: Product) => {
@@ -137,7 +137,7 @@ const Atelier = () => {
     setEditPrice(p.price);
     setEditImage(p.image);
     setEditDesc(p.description || '');
-    setEditBadge(p.badge || 'NOUVEAUTÉ');
+    setEditBadge(p.badge || 'NEW IN');
   };
 
   const handleUpdateProduct = (e: React.FormEvent) => {
@@ -156,11 +156,11 @@ const Atelier = () => {
 
     setProducts(getStoredProducts());
     setEditingProduct(null);
-    alert(`La pièce "${editName}" a été mise à jour avec succès !`);
+    alert(`Piece "${editName}" updated successfully!`);
   };
 
   const handleDeleteProduct = (id: string, name: string) => {
-    if (window.confirm(`Confirmer le retrait définitif de "${name}" de la boutique ?`)) {
+    if (window.confirm(`Are you sure you want to remove "${name}" from the boutique?`)) {
       deleteProduct(id);
       setProducts(getStoredProducts());
     }
@@ -168,21 +168,21 @@ const Atelier = () => {
 
   return (
     <div className="px-4 py-6 pb-24 md:py-10 md:max-w-6xl mx-auto">
-      {/* En-tête de l'Atelier */}
+      {/* Atelier Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#ede5db] mb-8">
         <div>
           <div className="text-[10px] font-bold tracking-[0.25em] text-[#8b7355] uppercase">
-            Maison ÉPURE &bull; Console Administrateur
+            Maison ÉPURE &bull; US Flagship Admin Console
           </div>
           <h1 className="font-['Cormorant_Garamond'] text-3xl md:text-4xl font-semibold text-[#1a1a1a] mt-1">
-            L'Atelier de Gestion
+            The Atelier Dashboard
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Gérez vos produits, commandes clients et photos au format luxe uniforme.
+            Manage your boutique catalog, orders, and upload photos with automatic 3:4 luxury standardization.
           </p>
         </div>
 
-        {/* Onglets Commandes / Produits */}
+        {/* Tab switchers */}
         <div className="flex gap-2 bg-[#ede5db]/60 p-1 rounded-sm self-start md:self-auto">
           <button 
             onClick={() => setActiveTab('products')}
@@ -192,7 +192,7 @@ const Atelier = () => {
                 : 'text-gray-600 hover:text-black'
             }`}
           >
-            🏷️ Catalogue Produits ({products.length})
+            🏷️ Product Catalog ({products.length})
           </button>
           <button 
             onClick={() => setActiveTab('orders')}
@@ -202,19 +202,19 @@ const Atelier = () => {
                 : 'text-gray-600 hover:text-black'
             }`}
           >
-            📦 Commandes ({orders.length})
+            📦 Orders ({orders.length})
           </button>
         </div>
       </div>
 
-      {/* SECTION 1 : GESTION DU CATALOGUE PRODUITS */}
+      {/* SECTION 1 : PRODUCT CATALOG MANAGEMENT */}
       {activeTab === 'products' && (
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-sm border border-[#ede5db]">
             <div>
-              <h2 className="text-base font-semibold text-gray-900">Catalogue des Pièces en Vente</h2>
+              <h2 className="text-base font-semibold text-gray-900">Active Boutique Pieces</h2>
               <p className="text-xs text-gray-500">
-                Toutes les photos sont automatiquement uniformisées au ratio luxe standard (3:4 portrait) pour garder un design irréprochable.
+                All photos are automatically cropped and optimized to luxury 3:4 portrait standards to preserve a flawless grid.
               </p>
             </div>
             <button 
@@ -222,7 +222,7 @@ const Atelier = () => {
               className="bg-[#1a1a1a] text-white px-5 py-3 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-gray-800 transition-colors shadow-xs flex items-center gap-2"
             >
               <span>+</span>
-              <span>Ajouter une Pièce</span>
+              <span>Add New Piece</span>
             </button>
           </div>
 
@@ -263,13 +263,13 @@ const Atelier = () => {
                     onClick={() => openEditModal(p)}
                     className="flex-1 bg-[#ede5db] text-[#1a1a1a] hover:bg-[#d8cdbf] py-2 text-[10px] font-bold uppercase tracking-widest rounded-xs transition-colors flex items-center justify-center gap-1.5"
                   >
-                    ✏️ Modifier
+                    ✏️ Edit
                   </button>
                   <button 
                     onClick={() => handleDeleteProduct(p.id, p.name)}
                     className="border border-red-200 text-red-600 hover:bg-red-50 px-3 py-2 text-[10px] font-bold uppercase tracking-widest rounded-xs transition-colors"
                   >
-                    Supprimer
+                    Delete
                   </button>
                 </div>
               </div>
@@ -278,26 +278,26 @@ const Atelier = () => {
         </div>
       )}
 
-      {/* SECTION 2 : GESTION DES COMMANDES */}
+      {/* SECTION 2 : CUSTOMER ORDERS MANAGEMENT */}
       {activeTab === 'orders' && (
         <div className="space-y-6">
-          {/* Statistiques rapides */}
+          {/* Quick Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white p-5 rounded-sm border border-[#ede5db]">
-              <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">Chiffre d'Affaires</div>
+              <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">Total Revenue (USD)</div>
               <div className="font-['Cormorant_Garamond'] text-3xl font-bold">${totalRevenue}.00</div>
             </div>
             <div className="bg-white p-5 rounded-sm border border-[#ede5db]">
-              <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">Commandes Récentes</div>
+              <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">Total Orders</div>
               <div className="font-['Cormorant_Garamond'] text-3xl font-bold">{orders.length}</div>
             </div>
             <div className="bg-white p-5 rounded-sm border border-[#ede5db]">
-              <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">Colis à Préparer</div>
+              <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">Orders to Ship</div>
               <div className="font-['Cormorant_Garamond'] text-3xl font-bold text-[#8b7355]">{pendingOrders.length}</div>
             </div>
           </div>
 
-          {/* Filtres de statut */}
+          {/* Status Filters */}
           <div className="flex gap-2">
             <button 
               onClick={() => setFilter('all')}
@@ -305,7 +305,7 @@ const Atelier = () => {
                 filter === 'all' ? 'bg-[#1a1a1a] text-white' : 'bg-white border border-[#ede5db] text-gray-600'
               }`}
             >
-              Toutes ({orders.length})
+              All Orders ({orders.length})
             </button>
             <button 
               onClick={() => setFilter('pending')}
@@ -313,26 +313,26 @@ const Atelier = () => {
                 filter === 'pending' ? 'bg-[#1a1a1a] text-white' : 'bg-white border border-[#ede5db] text-gray-600'
               }`}
             >
-              À traiter ({pendingOrders.length})
+              Pending Dispatch ({pendingOrders.length})
             </button>
           </div>
 
-          {/* Tableau des commandes */}
+          {/* Orders Table */}
           <div className="bg-white border border-[#ede5db] rounded-sm overflow-hidden">
             {filteredOrders.length === 0 ? (
               <div className="p-8 text-center text-gray-500 text-sm">
-                Aucune commande enregistrée pour le moment.
+                No orders recorded at the moment.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#faf8f5] border-b border-[#ede5db] text-[9px] uppercase tracking-widest text-gray-500">
                     <tr>
-                      <th className="p-3">Réf</th>
+                      <th className="p-3">Ref</th>
                       <th className="p-3">Client</th>
                       <th className="p-3">Date</th>
-                      <th className="p-3">Montant</th>
-                      <th className="p-3">Statut</th>
+                      <th className="p-3">Total</th>
+                      <th className="p-3">Status</th>
                       <th className="p-3 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -352,11 +352,11 @@ const Atelier = () => {
                             onChange={(e) => handleUpdateStatus(o.id, e.target.value as any)}
                             className="bg-transparent border border-[#ede5db] rounded-xs px-2 py-1 text-[10px] font-medium uppercase outline-none focus:border-black"
                           >
-                            <option value="En attente de paiement">En attente de paiement</option>
-                            <option value="Payé • À expédier">Payé • À expédier</option>
-                            <option value="En préparation">En préparation</option>
-                            <option value="Prêt transporteur">Prêt transporteur</option>
-                            <option value="Expédié">Expédié</option>
+                            <option value="En attente de paiement">Payment Pending</option>
+                            <option value="Payé • À expédier">Paid • Ready to Ship</option>
+                            <option value="En préparation">In Preparation</option>
+                            <option value="Prêt transporteur">Ready for Courier</option>
+                            <option value="Expédié">Shipped</option>
                           </select>
                         </td>
                         <td className="p-3 text-right">
@@ -364,7 +364,7 @@ const Atelier = () => {
                             onClick={() => setSelectedOrder(o)}
                             className="text-[#8b7355] hover:text-black font-semibold text-[10px] uppercase tracking-wider"
                           >
-                            Bordereau &rarr;
+                            Packing Slip &rarr;
                           </button>
                         </td>
                       </tr>
@@ -377,7 +377,7 @@ const Atelier = () => {
         </div>
       )}
 
-      {/* MODAL 1 : AJOUTER UN PRODUIT */}
+      {/* MODAL 1 : ADD A PRODUCT */}
       {showAddProductModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-[#faf8f5] max-w-lg w-full p-6 md:p-8 rounded-sm shadow-2xl border border-[#ede5db] relative max-h-[90vh] overflow-y-auto">
@@ -390,40 +390,38 @@ const Atelier = () => {
 
             <div className="mb-6">
               <div className="text-[9px] font-bold tracking-widest uppercase text-[#8b7355]">
-                Maison ÉPURE &bull; Nouveau Modèle
+                Maison ÉPURE &bull; New Garment
               </div>
               <h2 className="font-['Cormorant_Garamond'] text-3xl font-semibold mt-1">
-                Ajouter une Pièce à la Boutique
+                Add a Piece to the Boutique
               </h2>
               <p className="text-xs text-gray-500">
-                Téléversez une photo depuis votre téléphone ou ordinateur : elle sera automatiquement adaptée au ratio 3:4 uniforme.
+                Upload a photo directly from your phone or computer: it will be automatically standardized to luxury 3:4 portrait ratio.
               </p>
             </div>
 
             <form onSubmit={handleCreateProduct} className="space-y-4">
-              {/* SÉLECTEUR DE PHOTO TÉLÉPHONE / ORDINATEUR AVEC UNIFORMISATION 3:4 */}
+              {/* PHOTO SELECTOR */}
               <div className="bg-white p-4 rounded-sm border border-[#ede5db]">
                 <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-700 mb-2">
-                  Photo du Vêtement * (Téléphone ou Ordinateur)
+                  Garment Photo * (Phone Camera / Computer File)
                 </label>
 
                 <div className="flex gap-4 items-center">
-                  {/* Aperçu cadré 3:4 */}
                   <div className="w-24 h-32 bg-gray-100 rounded-sm border border-[#ede5db] overflow-hidden flex-shrink-0 relative group">
                     <img 
                       src={newProductImage} 
-                      alt="Aperçu" 
+                      alt="Preview" 
                       className="w-full h-full object-cover" 
                     />
                     {isProcessingImage && (
                       <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white text-[9px] text-center p-1">
                         <div className="animate-spin mb-1">⏳</div>
-                        Ajustement 3:4...
+                        3:4 Framing...
                       </div>
                     )}
                   </div>
 
-                  {/* Boutons d'importation */}
                   <div className="flex-1 space-y-2">
                     <input 
                       type="file" 
@@ -440,11 +438,11 @@ const Atelier = () => {
                       className="w-full bg-[#1a1a1a] text-white hover:bg-gray-800 py-2.5 px-3 rounded-xs text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
                     >
                       <span>📷</span>
-                      <span>Choisir une photo (Galerie / Fichier)</span>
+                      <span>Select Photo (Phone / PC)</span>
                     </button>
 
                     <div className="flex items-center justify-between text-[9px] text-gray-500 pt-1">
-                      <span>Cadrage automatique :</span>
+                      <span>Framing mode:</span>
                       <div className="flex gap-1">
                         <button
                           type="button"
@@ -453,7 +451,7 @@ const Atelier = () => {
                             cropMode === 'cover' ? 'bg-[#8b7355] text-white' : 'bg-gray-100 text-gray-600'
                           }`}
                         >
-                          Plein format
+                          Cover (Full)
                         </button>
                         <button
                           type="button"
@@ -462,7 +460,7 @@ const Atelier = () => {
                             cropMode === 'contain' ? 'bg-[#8b7355] text-white' : 'bg-gray-100 text-gray-600'
                           }`}
                         >
-                          Fond doux
+                          Contain (Fit)
                         </button>
                       </div>
                     </div>
@@ -472,12 +470,12 @@ const Atelier = () => {
 
               <div>
                 <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                  Nom de la pièce *
+                  Garment Name *
                 </label>
                 <input 
                   type="text" 
                   required
-                  placeholder="Ex: Manteau Long Ceinturé en Laine"
+                  placeholder="e.g. Belted Cashmere Trench Coat"
                   value={newProductName}
                   onChange={e => setNewProductName(e.target.value)}
                   className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-sm outline-none focus:border-[#1a1a1a]"
@@ -487,11 +485,11 @@ const Atelier = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    Sous-titre / Matière
+                    Subtitle / Fabric
                   </label>
                   <input 
                     type="text" 
-                    placeholder="Ex: 100% Laine Vierge Peignée"
+                    placeholder="e.g. 100% Combed Virgin Wool"
                     value={newProductSubtitle}
                     onChange={e => setNewProductSubtitle(e.target.value)}
                     className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-sm outline-none focus:border-[#1a1a1a]"
@@ -500,7 +498,7 @@ const Atelier = () => {
 
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    Prix ($ USD) *
+                    Price ($ USD) *
                   </label>
                   <input 
                     type="number" 
@@ -516,17 +514,17 @@ const Atelier = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    Catégorie
+                    Category
                   </label>
                   <select 
                     value={newProductCategory}
                     onChange={e => setNewProductCategory(e.target.value)}
                     className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
                   >
-                    <option value="MANTEAUX EN LAINE">MANTEAUX EN LAINE</option>
-                    <option value="CACHEMIRE">CACHEMIRE</option>
-                    <option value="PANTALONS">PANTALONS</option>
-                    <option value="ACCESSOIRES">ACCESSOIRES</option>
+                    <option value="WOOL OVERCOATS">WOOL OVERCOATS</option>
+                    <option value="CASHMERE">CASHMERE</option>
+                    <option value="TROUSERS">TROUSERS</option>
+                    <option value="ACCESSORIES">ACCESSORIES</option>
                   </select>
                 </div>
 
@@ -539,9 +537,9 @@ const Atelier = () => {
                     onChange={e => setNewProductBadge(e.target.value as any)}
                     className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
                   >
-                    <option value="NOUVEAUTÉ">NOUVEAUTÉ</option>
-                    <option value="ÉDITION LIMITÉE">ÉDITION LIMITÉE</option>
-                    <option value="PIÈCE SIGNATURE">PIÈCE SIGNATURE</option>
+                    <option value="NEW IN">NEW IN</option>
+                    <option value="LIMITED EDITION">LIMITED EDITION</option>
+                    <option value="SIGNATURE PIECE">SIGNATURE PIECE</option>
                     <option value="RESTOCK">RESTOCK</option>
                   </select>
                 </div>
@@ -549,13 +547,13 @@ const Atelier = () => {
 
               <div>
                 <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                  Description atelier
+                  Atelier Description
                 </label>
                 <textarea 
                   rows={2}
                   value={newProductDesc}
                   onChange={e => setNewProductDesc(e.target.value)}
-                  placeholder="Détails de la coupe, origines des matières, conseils de style..."
+                  placeholder="Tailoring notes, fabric provenance, fit advice..."
                   className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
                 />
               </div>
@@ -566,14 +564,14 @@ const Atelier = () => {
                   disabled={isProcessingImage}
                   className="flex-1 bg-[#1a1a1a] text-white py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-gray-800 transition-colors shadow-xs"
                 >
-                  Publier sur la boutique
+                  Publish to Boutique
                 </button>
                 <button 
                   type="button"
                   onClick={() => setShowAddProductModal(false)}
                   className="bg-[#ede5db] text-black px-5 py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-[#d5cdc3]"
                 >
-                  Annuler
+                  Cancel
                 </button>
               </div>
             </form>
@@ -581,7 +579,7 @@ const Atelier = () => {
         </div>
       )}
 
-      {/* MODAL 2 : MODIFIER UN PRODUIT & REMPLACER SA PHOTO */}
+      {/* MODAL 2 : EDIT PRODUCT & REPLACE PHOTO */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-[#faf8f5] max-w-lg w-full p-6 md:p-8 rounded-sm shadow-2xl border border-[#ede5db] relative max-h-[90vh] overflow-y-auto">
@@ -594,34 +592,34 @@ const Atelier = () => {
 
             <div className="mb-6">
               <div className="text-[9px] font-bold tracking-widest uppercase text-[#8b7355]">
-                Maison ÉPURE &bull; Modification Produit
+                Maison ÉPURE &bull; Edit Garment
               </div>
               <h2 className="font-['Cormorant_Garamond'] text-3xl font-semibold mt-1">
-                Modifier la Pièce
+                Edit Piece
               </h2>
               <p className="text-xs text-gray-500">
-                Vous pouvez changer la photo ou corriger les prix et descriptions.
+                Update prices, descriptions, or replace the photo with automatic 3:4 optimization.
               </p>
             </div>
 
             <form onSubmit={handleUpdateProduct} className="space-y-4">
-              {/* REMPLACER LA PHOTO */}
+              {/* REPLACE PHOTO */}
               <div className="bg-white p-4 rounded-sm border border-[#ede5db]">
                 <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-700 mb-2">
-                  Photo Actuelle (Cliquer pour remplacer)
+                  Current Photo (Click to replace)
                 </label>
 
                 <div className="flex gap-4 items-center">
                   <div className="w-24 h-32 bg-gray-100 rounded-sm border border-[#ede5db] overflow-hidden flex-shrink-0 relative">
                     <img 
                       src={editImage} 
-                      alt="Aperçu" 
+                      alt="Preview" 
                       className="w-full h-full object-cover" 
                     />
                     {isProcessingEditImage && (
                       <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white text-[9px] text-center p-1">
                         <div className="animate-spin mb-1">⏳</div>
-                        Ajustement 3:4...
+                        3:4 Framing...
                       </div>
                     )}
                   </div>
@@ -642,11 +640,11 @@ const Atelier = () => {
                       className="w-full bg-[#1a1a1a] text-white hover:bg-gray-800 py-2.5 px-3 rounded-xs text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
                     >
                       <span>🔄</span>
-                      <span>Changer la photo (Téléphone/PC)</span>
+                      <span>Replace Photo (Phone / PC)</span>
                     </button>
 
                     <div className="flex items-center justify-between text-[9px] text-gray-500 pt-1">
-                      <span>Cadrage automatique :</span>
+                      <span>Framing mode:</span>
                       <div className="flex gap-1">
                         <button
                           type="button"
@@ -655,7 +653,7 @@ const Atelier = () => {
                             editCropMode === 'cover' ? 'bg-[#8b7355] text-white' : 'bg-gray-100 text-gray-600'
                           }`}
                         >
-                          Plein format
+                          Cover (Full)
                         </button>
                         <button
                           type="button"
@@ -664,7 +662,7 @@ const Atelier = () => {
                             editCropMode === 'contain' ? 'bg-[#8b7355] text-white' : 'bg-gray-100 text-gray-600'
                           }`}
                         >
-                          Fond doux
+                          Contain (Fit)
                         </button>
                       </div>
                     </div>
@@ -674,7 +672,7 @@ const Atelier = () => {
 
               <div>
                 <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                  Nom de la pièce *
+                  Garment Name *
                 </label>
                 <input 
                   type="text" 
@@ -688,7 +686,7 @@ const Atelier = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    Sous-titre / Matière
+                    Subtitle / Fabric
                   </label>
                   <input 
                     type="text" 
@@ -700,7 +698,7 @@ const Atelier = () => {
 
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    Prix ($ USD) *
+                    Price ($ USD) *
                   </label>
                   <input 
                     type="number" 
@@ -716,17 +714,17 @@ const Atelier = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                    Catégorie
+                    Category
                   </label>
                   <select 
                     value={editCategory}
                     onChange={e => setEditCategory(e.target.value)}
                     className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
                   >
-                    <option value="MANTEAUX EN LAINE">MANTEAUX EN LAINE</option>
-                    <option value="CACHEMIRE">CACHEMIRE</option>
-                    <option value="PANTALONS">PANTALONS</option>
-                    <option value="ACCESSOIRES">ACCESSOIRES</option>
+                    <option value="WOOL OVERCOATS">WOOL OVERCOATS</option>
+                    <option value="CASHMERE">CASHMERE</option>
+                    <option value="TROUSERS">TROUSERS</option>
+                    <option value="ACCESSORIES">ACCESSORIES</option>
                   </select>
                 </div>
 
@@ -739,9 +737,9 @@ const Atelier = () => {
                     onChange={e => setEditBadge(e.target.value as any)}
                     className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
                   >
-                    <option value="NOUVEAUTÉ">NOUVEAUTÉ</option>
-                    <option value="ÉDITION LIMITÉE">ÉDITION LIMITÉE</option>
-                    <option value="PIÈCE SIGNATURE">PIÈCE SIGNATURE</option>
+                    <option value="NEW IN">NEW IN</option>
+                    <option value="LIMITED EDITION">LIMITED EDITION</option>
+                    <option value="SIGNATURE PIECE">SIGNATURE PIECE</option>
                     <option value="RESTOCK">RESTOCK</option>
                   </select>
                 </div>
@@ -749,12 +747,12 @@ const Atelier = () => {
 
               <div>
                 <label className="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">
-                  Description atelier
+                  Atelier Description
                 </label>
                 <textarea 
                   rows={2}
                   value={editDesc}
-                  onChange={e => setNewProductDesc(e.target.value)}
+                  onChange={e => setEditDesc(e.target.value)}
                   className="w-full bg-white border border-[#ede5db] rounded-sm px-3.5 py-2.5 text-xs outline-none focus:border-[#1a1a1a]"
                 />
               </div>
@@ -765,14 +763,14 @@ const Atelier = () => {
                   disabled={isProcessingEditImage}
                   className="flex-1 bg-[#1a1a1a] text-white py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-gray-800 transition-colors shadow-xs"
                 >
-                  Enregistrer les modifications
+                  Save Changes
                 </button>
                 <button 
                   type="button"
                   onClick={() => setEditingProduct(null)}
                   className="bg-[#ede5db] text-black px-5 py-3.5 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-[#d5cdc3]"
                 >
-                  Annuler
+                  Cancel
                 </button>
               </div>
             </form>
@@ -780,7 +778,7 @@ const Atelier = () => {
         </div>
       )}
 
-      {/* Modal Bordereau de Commande */}
+      {/* PACKING SLIP MODAL */}
       {selectedOrder && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-[#faf8f5] max-w-lg w-full p-6 md:p-8 rounded-sm shadow-xl border border-[#ede5db] relative">
@@ -793,26 +791,26 @@ const Atelier = () => {
 
             <div className="text-center pb-4 border-b border-[#ede5db] mb-6">
               <div className="text-[9px] font-bold tracking-widest uppercase text-gray-500">
-                Maison ÉPURE &bull; Bordereau d'Expédition FedEx
+                Maison ÉPURE &bull; FedEx Packing Slip
               </div>
               <h2 className="font-['Cormorant_Garamond'] text-3xl font-semibold mt-1">
-                Bordereau {selectedOrder.id}
+                Packing Slip {selectedOrder.id}
               </h2>
               <p className="text-xs text-gray-500">
-                Transporteur : {selectedOrder.carrier || 'FedEx Express'} &bull; Statut : {selectedOrder.status}
+                Carrier: {selectedOrder.carrier || 'FedEx Express'} &bull; Status: {selectedOrder.status}
               </p>
             </div>
 
             <div className="space-y-4 mb-6 text-sm">
               <div className="bg-white p-3 rounded-sm border border-[#ede5db]">
-                <div className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">Destinataire :</div>
+                <div className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">Ship To:</div>
                 <div className="font-semibold">{selectedOrder.customerName}</div>
                 <div className="text-gray-600">{selectedOrder.customerEmail}</div>
                 <div className="text-gray-600">{selectedOrder.address}</div>
               </div>
 
               <div>
-                <div className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-2">Contenu du colis :</div>
+                <div className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-2">Package Contents:</div>
                 {selectedOrder.items.map((it, i) => (
                   <div key={i} className="flex justify-between py-1.5 border-b border-gray-200 text-xs">
                     <span>{it.quantity} &times; {it.name} ({it.color} / {it.size})</span>
@@ -820,7 +818,7 @@ const Atelier = () => {
                   </div>
                 ))}
                 <div className="flex justify-between pt-2 text-sm font-bold">
-                  <span>Total :</span>
+                  <span>Total (USD):</span>
                   <span>${selectedOrder.total}.00</span>
                 </div>
               </div>
@@ -831,13 +829,13 @@ const Atelier = () => {
                 onClick={() => window.print()}
                 className="flex-1 bg-[#1a1a1a] text-white py-3 text-[10px] font-bold tracking-widest uppercase rounded-sm hover:bg-gray-800"
               >
-                Imprimer le bordereau
+                Print Packing Slip
               </button>
               <button 
                 onClick={() => setSelectedOrder(null)}
                 className="bg-[#ede5db] text-black px-5 py-3 text-[10px] font-bold tracking-widest uppercase rounded-sm"
               >
-                Fermer
+                Close
               </button>
             </div>
           </div>
